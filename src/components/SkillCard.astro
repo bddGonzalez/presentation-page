@@ -1,0 +1,23 @@
+---
+export type Skill = {
+  src: string;
+  name: string;
+  description: string;
+  alt?: string;
+  whiteBg?: boolean;
+};
+
+const { skill: _skill } = Astro.props;
+
+const skill = _skill as Skill;
+
+if (!skill) throw new Error("skill issue");
+---
+
+<div
+  style="padding:15px;background-color:#e8e8e8;border-radius:15px;overflow:hidden;place-items:center;display:flex;flex-direction:column;gap:15px;"
+>
+  <img src={skill.src} alt={skill.alt ?? skill.name} height="50" width="50" />
+  <h3>{skill.name}</h3>
+  <p>{skill.description}</p>
+</div>

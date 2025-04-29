@@ -1,0 +1,18 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background-color: #f9f9f9;
+    background-image: linear-gradient(to bottom, #f9f9f9, #ffffff);
+    font-family: 'Poppins', Courier, monospace;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}

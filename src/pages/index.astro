@@ -1,16 +1,99 @@
 ---
+import "../styles/globals.css";
+import RootLayout from "../components/RootLayout.astro";
+import type { Skill } from "../components/SkillCard.astro";
+import SkillCard from "../components/SkillCard.astro";
 
+const skills: Skill[] = [
+  {
+    src: "../../public/nextjs.svg",
+    name: "Next.js",
+    description:
+      "Experienced in building performant front-end applications with server-side rendering and static site generation.",
+    whiteBg: true,
+  },
+  {
+    src: "../../public/nestjs.svg",
+    name: "Nest.js",
+    description:
+      "Utilized for developing scalable and maintainable back-end APIs with a focus on modular architecture.",
+  },
+  {
+    src: "../../public/postgresql.svg",
+    name: "PostgreSQL",
+    description:
+      "Proficient in designing and managing relational databases, writing efficient queries, and ensuring data integrity.",
+  },
+  {
+    src: "../../public/typescript.svg",
+    name: "TypeScript",
+    description:
+      "Strongly experienced in using TypeScript to enhance code quality and maintainability across both front-end and back-end projects.",
+  },
+];
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro</title>
+
+    <style>
+      .hero-text {
+        font-family: "Inter";
+      }
+    </style>
+  </head>
+  <body>
+    <RootLayout>
+      <main style="padding: 0 2rem">
+        <div style="display:flex;flex-direction:column;">
+          <h1
+            style="font-size: 5em; font-weight: bold; text-align: center; margin-bottom: 0.5em;"
+            class="hero-text"
+          >
+            Salutations. I'm Brian.<br /> A full-stack developer.
+          </h1>
+          <p style="font-size: 1.2em; text-align: center; color: #555;">
+            Creating seamless digital experiences through thoughtful front-end
+            and scalable back-end solutions.
+          </p>
+        </div>
+        <h2 style="margin-top:5rem;">Stack most worked/comfortable with:</h2>
+        <div
+          style="padding:1rem;display:grid;grid-template-columns: 1fr 1fr 1fr 1fr;gap:25px;"
+        >
+          {skills.map((skill) => <SkillCard skill={skill} />)}
+          <div
+            style="grid-column: span 4;background-color:#e8e8e8;padding:15px;background-color:#e8e8e8;border-radius:15px;overflow:hidden;place-items:center"
+          >
+            <p style="text-align: center;">
+              During my two years as a web developer, I heavily utilized the
+              technologies highlighted above to contribute to building and
+              maintaining internal web applications focused on streamlining
+              operational workflows within large companies.
+            </p>
+          </div>
+        </div>
+        <div
+          style="grid-column: span 4;background-color:#e8e8e8;padding:15px;background-color:#e8e8e8;border-radius:15px;overflow:hidden;place-items:center; margin-bottom: 2rem;"
+        >
+          <h2>More Than Just Code</h2>
+          <p style="padding: 20px 0;">
+            Driven by a fascination with creating functional and elegant web
+            solutions, my journey into web development has been incredibly
+            rewarding. Beyond the specific technologies I work with, I believe
+            my strong problem-solving abilities are crucial in tackling complex
+            development challenges effectively. I also value clear communication
+            and collaboration within a team, honed through my experience in a
+            fast-paced environment, ensuring smooth project workflows and shared
+            success.
+          </p>
+        </div>
+      </main>
+    </RootLayout>
+  </body>
 </html>
