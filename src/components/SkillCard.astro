@@ -27,9 +27,22 @@ const imageProps: RemoteImageProps | false =
     : false;
 ---
 
-<div
-  style="padding:15px;background-color:#e8e8e8;border-radius:15px;overflow:hidden;place-items:center;display:flex;flex-direction:column;gap:15px;"
->
+<style>
+  .skill-card {
+    padding: 15px;
+    background-color: #e8e8e8;
+    border-radius: 15px;
+    overflow: hidden;
+    place-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .skill-card:hover {
+    transform: scale(1.1, 1.1);
+  }
+</style>
+<div class="skill-card">
   {!!imageProps ? <Image {...imageProps} /> : <skill.src />}
   <h3>{skill.name}</h3>
   <p>{skill.description}</p>

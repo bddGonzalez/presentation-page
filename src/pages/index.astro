@@ -7,6 +7,9 @@ import NextJSIcon from "../components/icons/NextJSIcon.astro";
 import NestJSIcon from "../components/icons/NestJSIcon.astro";
 import PostgreSQLIcon from "../components/icons/PostgreSQLIcon.astro";
 import TypeScriptIcon from "../components/icons/TypeScriptIcon.astro";
+import GithubIcon from "../components/icons/GithubIcon.astro";
+import LinkedInIcon from "../components/icons/LinkedInIcon.astro";
+import EmailIcon from "../components/icons/EmailIcon.astro";
 
 const skills: Skill[] = [
   {
@@ -66,7 +69,7 @@ const skills: Skill[] = [
             and scalable back-end solutions.
           </p>
         </div>
-        <h2 style="margin-top:5rem;">Stack most worked/comfortable with:</h2>
+        <h2 style="margin-top:5rem;text-align: center;">Core Technologies</h2>
         <div
           style="padding:1rem 0 ;display:grid;grid-template-columns: 1fr 1fr 1fr 1fr;gap:25px;"
         >
@@ -83,7 +86,7 @@ const skills: Skill[] = [
           </div>
         </div>
         <div
-          style="grid-column: span 4;background-color:#e8e8e8;padding:15px;background-color:#e8e8e8;border-radius:15px;overflow:hidden;place-items:center; margin-bottom: 2rem;"
+          style="grid-column: span 4;padding:15px;border-radius:15px;overflow:hidden;place-items:center; margin-bottom: 2rem;"
         >
           <h2>More Than Just Code</h2>
           <p style="padding: 20px 0;">
@@ -96,6 +99,35 @@ const skills: Skill[] = [
             fast-paced environment, ensuring smooth project workflows and shared
             success.
           </p>
+        </div>
+        <h2>Contact</h2>
+        <div
+          style="margin-bottom:2rem;display:grid;grid-template-columns: 1fr 1fr 1fr;"
+        >
+          <div>
+            <a
+              href="mailto:briandedgonzalez@gmail.com"
+              target="_blank"
+              style="display:flex;flex-direction:column;justify-content: center;align-items: center;"
+              ><EmailIcon /> briandedgonzalez@gmail.com
+            </a>
+          </div>
+          <div>
+            <a
+              href="https://www.linkedin.com/in/yourprofile"
+              target="_blank"
+              style="display:flex;flex-direction:column;justify-content: center;align-items: center;"
+              ><LinkedInIcon /> Brian Gonzalez
+            </a>
+          </div>
+          <div>
+            <a
+              href="https://github.com/yourusername"
+              target="_blank"
+              style="display:flex;flex-direction:column;justify-content: center;align-items: center;"
+              ><GithubIcon /> bddGonzalez</a
+            >
+          </div>
         </div>
       </main>
     </RootLayout>
