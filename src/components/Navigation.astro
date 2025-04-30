@@ -1,9 +1,12 @@
 ---
+import GithubIcon from "./icons/GithubIcon.astro";
+import LinkedInIcon from "./icons/LinkedInIcon.astro";
+
 type Link = {
   href: string;
   label?: string;
-  url?: string;
-} & ({ label: string } | { url: string });
+  Icon?: (props: Record<string, any>) => any;
+} & ({ label: string } | { Icon: (props: Record<string, any>) => any });
 
 const links: Link[] = [
   { href: "/work", label: "Work" },
@@ -11,30 +14,33 @@ const links: Link[] = [
   { href: "/contact", label: "Contact" },
 ];
 const pushedLinks: Link[] = [
-  { href: "/", url: "../../public/github.svg" },
-  { href: "/", url: "../../public/linkedin.svg" },
+  { href: "https://github.com/bddGonzalez", Icon: GithubIcon },
+  {
+    href: "https://www.linkedin.com/in/brian-gonzalez-a96a38359/",
+    Icon: LinkedInIcon,
+  },
 ];
 ---
 
 <nav style="padding:2rem;">
   <ul style="width:100%;display:flex;gap: 0 2rem;">
     {
-      links.map(({ href, label, url }) => (
+      links.map(({ href, label, Icon }) => (
         <li>
           <a href={href} style="font-weight:bolder;">
             {label && <p>{label}</p>}
-            {url && <img src={url} alt="Logo" width="40" height="40" />}
+            {Icon && <Icon />}
           </a>
         </li>
       ))
     }
     <div style="display:flex;gap:0 2rem;margin-left: auto;">
       {
-        pushedLinks.map(({ href, label, url }) => (
+        pushedLinks.map(({ href, label, Icon }) => (
           <li>
             <a href={href} style="font-weight:bolder;">
               {label && <p>{label}</p>}
-              {url && <img src={url} alt="Logo" width="40" height="40" />}
+              {Icon && <Icon />}
             </a>
           </li>
         ))

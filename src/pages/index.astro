@@ -3,29 +3,33 @@ import "../styles/globals.css";
 import RootLayout from "../components/RootLayout.astro";
 import type { Skill } from "../components/SkillCard.astro";
 import SkillCard from "../components/SkillCard.astro";
+import NextJSIcon from "../components/icons/NextJSIcon.astro";
+import NestJSIcon from "../components/icons/NestJSIcon.astro";
+import PostgreSQLIcon from "../components/icons/PostgreSQLIcon.astro";
+import TypeScriptIcon from "../components/icons/TypeScriptIcon.astro";
 
 const skills: Skill[] = [
   {
-    src: "../../public/nextjs.svg",
+    src: NextJSIcon,
     name: "Next.js",
     description:
       "Experienced in building performant front-end applications with server-side rendering and static site generation.",
     whiteBg: true,
   },
   {
-    src: "../../public/nestjs.svg",
+    src: NestJSIcon,
     name: "Nest.js",
     description:
       "Utilized for developing scalable and maintainable back-end APIs with a focus on modular architecture.",
   },
   {
-    src: "../../public/postgresql.svg",
+    src: PostgreSQLIcon,
     name: "PostgreSQL",
     description:
       "Proficient in designing and managing relational databases, writing efficient queries, and ensuring data integrity.",
   },
   {
-    src: "../../public/typescript.svg",
+    src: TypeScriptIcon,
     name: "TypeScript",
     description:
       "Strongly experienced in using TypeScript to enhance code quality and maintainability across both front-end and back-end projects.",
@@ -64,7 +68,7 @@ const skills: Skill[] = [
         </div>
         <h2 style="margin-top:5rem;">Stack most worked/comfortable with:</h2>
         <div
-          style="padding:1rem;display:grid;grid-template-columns: 1fr 1fr 1fr 1fr;gap:25px;"
+          style="padding:1rem 0 ;display:grid;grid-template-columns: 1fr 1fr 1fr 1fr;gap:25px;"
         >
           {skills.map((skill) => <SkillCard skill={skill} />)}
           <div

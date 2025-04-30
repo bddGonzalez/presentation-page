@@ -1,6 +1,9 @@
 ---
+import { type LocalImageProps, type RemoteImageProps } from "astro:assets";
+import { Image } from "astro:assets";
+
 export type Skill = {
-  src: string;
+  src: string | ((props: Record<string, any>) => any);
   name: string;
   description: string;
   alt?: string;
@@ -12,12 +15,22 @@ const { skill: _skill } = Astro.props;
 const skill = _skill as Skill;
 
 if (!skill) throw new Error("skill issue");
+
+const imageProps: RemoteImageProps | false =
+  typeof skill.src === "string"
+    ? {
+        src: skill.src,
+        alt: skill.alt ?? skill.name,
+        height: 50,
+        width: 50,
+      }
+    : false;
 ---
 
 <div
   style="padding:15px;background-color:#e8e8e8;border-radius:15px;overflow:hidden;place-items:center;display:flex;flex-direction:column;gap:15px;"
 >
-  <img src={skill.src} alt={skill.alt ?? skill.name} height="50" width="50" />
+  {!!imageProps ? <Image {...imageProps} /> : <skill.src />}
   <h3>{skill.name}</h3>
   <p>{skill.description}</p>
 </div>
