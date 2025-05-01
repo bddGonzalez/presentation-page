@@ -14,7 +14,8 @@
 }
 
 .hero-subtitle {
-    font-size: 1.4em;
+    font-size: 1.2em;
+    text-align: center;
     color: #555;
 }
 
@@ -81,6 +82,11 @@
 
 .core-technologies-section {
     padding:1rem;
+}
+
+.core-technologies-title {
+    margin-top: 5rem;
+    text-align: center;
 }
 
 @media (max-width: 768px) {

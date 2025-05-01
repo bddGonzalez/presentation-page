@@ -1,14 +1,13 @@
 ---
 import "../styles/Navigation.css";
 import CrossIcon from "./icons/CrossIcon.astro";
-import GithubIcon from "./icons/GithubIcon.astro";
 import HamburgerMenuIcon from "./icons/HamburgerMenuIcon.astro";
-import LinkedInIcon from "./icons/LinkedInIcon.astro";
 
 type Link = {
   href: string;
   label?: string;
   Icon?: (props: Record<string, any>) => any;
+  extraProps?: Record<string, any>;
 } & ({ label: string } | { Icon: (props: Record<string, any>) => any });
 
 const links: Link[] = [
@@ -17,11 +16,16 @@ const links: Link[] = [
   { href: "/contact", label: "Contact" },
 ];
 const pushedLinks: Link[] = [
-  { href: "https://github.com/bddGonzalez", Icon: GithubIcon },
-  {
+  /* {
     href: "https://www.linkedin.com/in/brian-gonzalez-a96a38359/",
     Icon: LinkedInIcon,
   },
+  { href: "mailto:briandedgonzalez@gmail.com", Icon: EmailIcon },
+  {
+    href: "https://github.com/bddGonzalez",
+    Icon: GithubIcon,
+    extraProps: { width: 40, height: 40 },
+  }, */
 ];
 ---
 
@@ -36,22 +40,22 @@ const pushedLinks: Link[] = [
     <button id="btn-close" class="nav-close"><CrossIcon /></button>
     <ul class="nav-links">
       {
-        links.map(({ href, label, Icon }) => (
+        links.map(({ href, label, Icon, extraProps }) => (
           <li>
             <a href={href} style="font-weight:bolder;">
               {label && <p>{label}</p>}
-              {Icon && <Icon />}
+              {Icon && <Icon {...extraProps} />}
             </a>
           </li>
         ))
       }
       <div class="pushed-links">
         {
-          pushedLinks.map(({ href, label, Icon }) => (
+          pushedLinks.map(({ href, label, Icon, extraProps }) => (
             <li>
               <a href={href} style="font-weight:bolder;" target="_blank">
                 {label && <p>{label}</p>}
-                {Icon && <Icon />}
+                {Icon && <Icon {...extraProps} />}
               </a>
             </li>
           ))
@@ -92,7 +96,9 @@ const pushedLinks: Link[] = [
   openBtn?.addEventListener("click", onMenuToggle);
   closeBtn?.addEventListener("click", onMenuToggle);
   navOverlay?.addEventListener("click", () => {
-    setupNav({ matches: true });
+    openBtn?.setAttribute("aria-expanded", "false");
+    navContent.style.display = "";
+    navOverlay.style.display = "";
   });
   media.addEventListener("change", setupNav);
 </script>

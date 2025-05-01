@@ -8,8 +8,8 @@ import NextJSIcon from "../components/icons/NextJSIcon.astro";
 import NestJSIcon from "../components/icons/NestJSIcon.astro";
 import PostgreSQLIcon from "../components/icons/PostgreSQLIcon.astro";
 import TypeScriptIcon from "../components/icons/TypeScriptIcon.astro";
-import GithubIcon from "../components/icons/GithubIcon.astro";
 import LinkedInIcon from "../components/icons/LinkedInIcon.astro";
+import GithubIcon from "../components/icons/GithubIcon.astro";
 import EmailIcon from "../components/icons/EmailIcon.astro";
 
 const skills: Skill[] = [
@@ -55,29 +55,51 @@ const skills: Skill[] = [
           <h1 class="hero-text">
             Salutations. I'm Brian.<br /> A full-stack developer.
           </h1>
-          <p
-            class="hero-subtitle"
-            style="font-size: 1.2em; text-align: center; color: #555;"
-          >
+          <p class="hero-subtitle">
             Creating seamless digital experiences through thoughtful front-end
             and scalable back-end solutions.
           </p>
         </div>
 
+        <div class="contact-info">
+          <h2 class="contact-title">Contact</h2>
+          <div class="contact-links">
+            <div>
+              <a
+                href="mailto:briandedgonzalez@gmail.com"
+                target="_blank"
+                aria-label="Email"
+                class="contact-link"
+                ><EmailIcon />
+              </a>
+            </div>
+            <div>
+              <a
+                href="https://www.linkedin.com/in/brian-gonzalez-a96a38359/"
+                target="_blank"
+                aria-label="LinkedIn"
+                class="contact-link"
+                ><LinkedInIcon />
+              </a>
+            </div>
+
+            <div>
+              <a
+                href="https://github.com/bddGonzalez"
+                target="_blank"
+                class="contact-link"
+                aria-label="Github"><GithubIcon height={40} width={40} /></a
+              >
+            </div>
+          </div>
+        </div>
+
         <section class="core-technologies-section">
-          <h2
-            class="core-technologies-title"
-            style="margin-top:5rem;text-align: center;"
-          >
-            Core Technologies
-          </h2>
+          <h2 class="core-technologies-title">Core Technologies</h2>
           <div class="skills-grid">
             {skills.map((skill) => <SkillCard skill={skill} />)}
           </div>
-          <div
-            style="grid-column: span 4;background-color:#e8e8e8;padding:15px;background-color:#e8e8e8;border-radius:15px;overflow:hidden;place-items:center"
-            class="experience-summary-card"
-          >
+          <div class="experience-summary-card">
             <p style="text-align: center;">
               During my two years as a web developer, I heavily utilized the
               technologies highlighted above to contribute to building and
@@ -112,37 +134,6 @@ const skills: Skill[] = [
                 fixes. I value the process of finding clear and logical
                 solutions to technical problems.
               </p>
-            </div>
-            <div class="contact-info">
-              <h2 class="contact-title">Contact</h2>
-              <div class="contact-links">
-                <div>
-                  <a
-                    href="mailto:briandedgonzalez@gmail.com"
-                    target="_blank"
-                    aria-label="Email"
-                    class="contact-link"
-                    ><EmailIcon />
-                  </a>
-                </div>
-                <div>
-                  <a
-                    href="https://www.linkedin.com/in/brian-gonzalez-a96a38359/"
-                    target="_blank"
-                    aria-label="LinkedIn"
-                    class="contact-link"
-                    ><LinkedInIcon />
-                  </a>
-                </div>
-                <div>
-                  <a
-                    href="https://github.com/bddGonzalez"
-                    target="_blank"
-                    class="contact-link"
-                    aria-label="Github"><GithubIcon height={40} width={40} /></a
-                  >
-                </div>
-              </div>
             </div>
           </div>
         </section>

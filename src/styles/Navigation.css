@@ -10,6 +10,7 @@ nav {
 .pushed-links {
     margin-left: auto;
     display: flex;
+    align-items: center;
 }
 
 .nav-content {
