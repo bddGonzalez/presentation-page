@@ -1,5 +1,6 @@
 ---
 import "../styles/globals.css";
+import "../styles/index.css";
 import RootLayout from "../components/RootLayout.astro";
 import type { Skill } from "../components/SkillCard.astro";
 import SkillCard from "../components/SkillCard.astro";
@@ -17,7 +18,6 @@ const skills: Skill[] = [
     name: "Next.js",
     description:
       "Experienced in building performant front-end applications with server-side rendering and static site generation.",
-    whiteBg: true,
   },
   {
     src: NestJSIcon,
@@ -44,38 +44,39 @@ const skills: Skill[] = [
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-
-    <style>
-      .hero-text {
-        font-family: "Inter";
-      }
-    </style>
+    <title>Brian Gonzalez | Full-Stack Developer</title>
   </head>
   <body>
     <RootLayout>
-      <main style="padding: 0 2rem">
-        <div style="display:flex;flex-direction:column;">
-          <h1
-            style="font-size: 5em; font-weight: bold; text-align: center; margin-bottom: 0.5em;"
-            class="hero-text"
-          >
+      <main>
+        <div class="hero-container">
+          <h1 class="hero-text">
             Salutations. I'm Brian.<br /> A full-stack developer.
           </h1>
-          <p style="font-size: 1.2em; text-align: center; color: #555;">
+          <p
+            class="hero-subtitle"
+            style="font-size: 1.2em; text-align: center; color: #555;"
+          >
             Creating seamless digital experiences through thoughtful front-end
             and scalable back-end solutions.
           </p>
         </div>
-        <h2 style="margin-top:5rem;text-align: center;">Core Technologies</h2>
-        <div
-          style="padding:1rem 0 ;display:grid;grid-template-columns: 1fr 1fr 1fr 1fr;gap:25px;"
-        >
-          {skills.map((skill) => <SkillCard skill={skill} />)}
+
+        <section class="core-technologies-section">
+          <h2
+            class="core-technologies-title"
+            style="margin-top:5rem;text-align: center;"
+          >
+            Core Technologies
+          </h2>
+          <div class="skills-grid">
+            {skills.map((skill) => <SkillCard skill={skill} />)}
+          </div>
           <div
             style="grid-column: span 4;background-color:#e8e8e8;padding:15px;background-color:#e8e8e8;border-radius:15px;overflow:hidden;place-items:center"
+            class="experience-summary-card"
           >
             <p style="text-align: center;">
               During my two years as a web developer, I heavily utilized the
@@ -84,51 +85,67 @@ const skills: Skill[] = [
               operational workflows within large companies.
             </p>
           </div>
-        </div>
-        <div
-          style="grid-column: span 4;padding:15px;border-radius:15px;overflow:hidden;place-items:center; margin-bottom: 2rem;"
-        >
-          <h2>More Than Just Code</h2>
-          <p style="padding: 20px 0;">
-            Driven by a fascination with creating functional and elegant web
-            solutions, my journey into web development has been incredibly
-            rewarding. Beyond the specific technologies I work with, I believe
-            my strong problem-solving abilities are crucial in tackling complex
-            development challenges effectively. I also value clear communication
-            and collaboration within a team, honed through my experience in a
-            fast-paced environment, ensuring smooth project workflows and shared
-            success.
-          </p>
-        </div>
-        <h2>Contact</h2>
-        <div
-          style="margin-bottom:2rem;display:grid;grid-template-columns: 1fr 1fr 1fr;"
-        >
-          <div>
-            <a
-              href="mailto:briandedgonzalez@gmail.com"
-              target="_blank"
-              style="display:flex;flex-direction:column;justify-content: center;align-items: center;"
-              ><EmailIcon /> briandedgonzalez@gmail.com
-            </a>
+        </section>
+
+        <section class="about-skills-contact-section">
+          <div class="about-me">
+            <h2 class="about-me-title">More Than Just Code</h2>
+            <p>
+              Driven by a fascination with creating functional and elegant web
+              solutions, my journey into web development has been incredibly
+              rewarding. Beyond the specific technologies I work with, I believe
+              my strong problem-solving abilities are crucial in tackling
+              complex development challenges effectively. I also value clear
+              communication and collaboration within a team, honed through my
+              experience in a fast-paced environment, ensuring smooth project
+              workflows and shared success.
+            </p>
           </div>
-          <div>
-            <a
-              href="https://www.linkedin.com/in/yourprofile"
-              target="_blank"
-              style="display:flex;flex-direction:column;justify-content: center;align-items: center;"
-              ><LinkedInIcon /> Brian Gonzalez
-            </a>
+
+          <div class="problem-solving-contact-container">
+            <div class="problem-solving">
+              <p>
+                I approach development challenges methodically, focusing on
+                understanding the core issue and identifying practical
+                solutions. My experience has strengthened my ability to analyze
+                problems, troubleshoot effectively, and implement reliable
+                fixes. I value the process of finding clear and logical
+                solutions to technical problems.
+              </p>
+            </div>
+            <div class="contact-info">
+              <h2 class="contact-title">Contact</h2>
+              <div class="contact-links">
+                <div>
+                  <a
+                    href="mailto:briandedgonzalez@gmail.com"
+                    target="_blank"
+                    aria-label="Email"
+                    class="contact-link"
+                    ><EmailIcon />
+                  </a>
+                </div>
+                <div>
+                  <a
+                    href="https://www.linkedin.com/in/brian-gonzalez-a96a38359/"
+                    target="_blank"
+                    aria-label="LinkedIn"
+                    class="contact-link"
+                    ><LinkedInIcon />
+                  </a>
+                </div>
+                <div>
+                  <a
+                    href="https://github.com/bddGonzalez"
+                    target="_blank"
+                    class="contact-link"
+                    aria-label="Github"><GithubIcon height={40} width={40} /></a
+                  >
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <a
-              href="https://github.com/yourusername"
-              target="_blank"
-              style="display:flex;flex-direction:column;justify-content: center;align-items: center;"
-              ><GithubIcon /> bddGonzalez</a
-            >
-          </div>
-        </div>
+        </section>
       </main>
     </RootLayout>
   </body>

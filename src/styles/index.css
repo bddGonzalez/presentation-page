@@ -1,0 +1,121 @@
+.hero-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hero-text {
+    font-family: "Inter";
+    font-size: 4em;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.hero-subtitle {
+    font-size: 1.4em;
+    color: #555;
+}
+
+.tech-stack-section {
+    margin-top: 3rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.skills-grid {
+    padding: 1rem 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.experience-summary-card {
+    background-color: #e8e8e8;
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.about-skills-contact-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.about-me-title {
+    text-align: center;
+}
+
+.problem-solving-contact-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+}
+
+.contact-info {
+    text-align: center;
+}
+
+.contact-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.contact-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.core-technologies-section {
+    padding:1rem;
+}
+
+@media (max-width: 768px) {
+    .hero-text {
+        font-size: 2.5em;
+    }
+
+    .skills-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .problem-solving-contact-container {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-links {
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .core-technologies-section {
+        padding: 0rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .skills-grid {
+        grid-template-columns: 1fr;
+        gap:0;
+        margin-bottom: 0;
+        padding: 1rem 0 1px 0;
+    }
+
+
+    .contact-links {
+        flex-direction: row;
+    }
+}

@@ -1,5 +1,5 @@
 ---
-import { type LocalImageProps, type RemoteImageProps } from "astro:assets";
+import { type RemoteImageProps } from "astro:assets";
 import { Image } from "astro:assets";
 
 export type Skill = {
@@ -38,8 +38,11 @@ const imageProps: RemoteImageProps | false =
     flex-direction: column;
     gap: 15px;
   }
-  .skill-card:hover {
-    transform: scale(1.1, 1.1);
+
+  @media (min-width: 768px) {
+    .skill-card:hover {
+      transform: scale(1.1, 1.1);
+    }
   }
 </style>
 <div class="skill-card">

@@ -1,5 +1,8 @@
 ---
+import "../styles/Navigation.css";
+import CrossIcon from "./icons/CrossIcon.astro";
 import GithubIcon from "./icons/GithubIcon.astro";
+import HamburgerMenuIcon from "./icons/HamburgerMenuIcon.astro";
 import LinkedInIcon from "./icons/LinkedInIcon.astro";
 
 type Link = {
@@ -22,21 +25,18 @@ const pushedLinks: Link[] = [
 ];
 ---
 
-<nav style="padding:2rem;">
-  <ul style="width:100%;display:flex;gap: 0 2rem;">
-    {
-      links.map(({ href, label, Icon }) => (
-        <li>
-          <a href={href} style="font-weight:bolder;">
-            {label && <p>{label}</p>}
-            {Icon && <Icon />}
-          </a>
-        </li>
-      ))
-    }
-    <div style="display:flex;gap:0 2rem;margin-left: auto;">
+<nav>
+  <button id="btn-open" class="nav-open" aria-expanded="false"
+    ><HamburgerMenuIcon /></button
+  >
+
+  <div class="nav-overlay"></div>
+
+  <div class="nav-content">
+    <button id="btn-close" class="nav-close"><CrossIcon /></button>
+    <ul class="nav-links">
       {
-        pushedLinks.map(({ href, label, Icon }) => (
+        links.map(({ href, label, Icon }) => (
           <li>
             <a href={href} style="font-weight:bolder;">
               {label && <p>{label}</p>}
@@ -45,6 +45,54 @@ const pushedLinks: Link[] = [
           </li>
         ))
       }
-    </div>
-  </ul>
+      <div class="pushed-links">
+        {
+          pushedLinks.map(({ href, label, Icon }) => (
+            <li>
+              <a href={href} style="font-weight:bolder;" target="_blank">
+                {label && <p>{label}</p>}
+                {Icon && <Icon />}
+              </a>
+            </li>
+          ))
+        }
+      </div>
+    </ul>
+  </div>
 </nav>
+<script>
+  const openBtn = document.querySelector("#btn-open") as HTMLElement;
+  const closeBtn = document.querySelector("#btn-close") as HTMLElement;
+  const media = window.matchMedia("(width < 768px)");
+  const navContent = document.querySelector(".nav-content") as HTMLElement;
+  const navOverlay = document.querySelector(".nav-overlay") as HTMLElement;
+
+  const onMenuToggle = () => {
+    const isExpanded =
+      openBtn?.getAttribute("aria-expanded") === "true" || false;
+    openBtn?.setAttribute("aria-expanded", String.raw`${!isExpanded}`);
+    navContent.style.display = !isExpanded ? "block" : "";
+    navOverlay.style.display = !isExpanded ? "block" : "";
+  };
+
+  const setupNav = (e: { matches: boolean }) => {
+    if (e.matches) {
+      openBtn.style.display = "block";
+      openBtn?.setAttribute("aria-expanded", "false");
+      navContent.style.display = "";
+      navOverlay.style.display = "";
+    } else {
+      openBtn.style.display = "none";
+      navContent.style.display = "flex";
+      navOverlay.style.display = "none";
+    }
+  };
+
+  setupNav(media);
+  openBtn?.addEventListener("click", onMenuToggle);
+  closeBtn?.addEventListener("click", onMenuToggle);
+  navOverlay?.addEventListener("click", () => {
+    setupNav({ matches: true });
+  });
+  media.addEventListener("change", setupNav);
+</script>
