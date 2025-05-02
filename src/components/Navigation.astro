@@ -1,4 +1,5 @@
 ---
+import { getRelativeLocaleUrl } from "astro:i18n";
 import "../styles/Navigation.css";
 import CrossIcon from "./icons/CrossIcon.astro";
 import HamburgerMenuIcon from "./icons/HamburgerMenuIcon.astro";
@@ -11,9 +12,18 @@ type Link = {
 } & ({ label: string } | { Icon: (props: Record<string, any>) => any });
 
 const links: Link[] = [
-  { href: "/work", label: "Work" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  {
+    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "work"),
+    label: "Work",
+  },
+  {
+    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "about"),
+    label: "About",
+  },
+  {
+    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "contact"),
+    label: "Contact",
+  },
 ];
 const pushedLinks: Link[] = [
   /* {
@@ -27,8 +37,33 @@ const pushedLinks: Link[] = [
     extraProps: { width: 40, height: 40 },
   }, */
 ];
+const prefersSpanishAndIsInEn =
+  Astro.preferredLocale === "es" && !Astro.originPathname.includes("/es");
+const pathname = Astro.originPathname.replace("/es", "");
 ---
 
+{
+  !prefersSpanishAndIsInEn && (
+    <div
+      style="width:100%;background-color:#e8e8e8;padding:1rem;font-weight: 900;display:flex;gap:20px;"
+      id="language-change-prompt"
+    >
+      ¿Cambiar a español?{" "}
+      <a
+        style="color: #1F3760; text-decoration:underline;"
+        href={getRelativeLocaleUrl("es", pathname)}
+      >
+        Si
+      </a>
+      <button
+        id="reject-language-change"
+        style="color: #1F3760; text-decoration:underline;"
+      >
+        No
+      </button>
+    </div>
+  )
+}
 <nav>
   <button id="btn-open" class="nav-open" aria-expanded="false"
     ><HamburgerMenuIcon /></button
@@ -101,4 +136,23 @@ const pushedLinks: Link[] = [
     navOverlay.style.display = "";
   });
   media.addEventListener("change", setupNav);
+
+  // This here is for the reject-language-change button
+  const rejectLanguageChangeBtn = document.querySelector(
+    "#reject-language-change"
+  ) as HTMLElement;
+  const languageChangePrompt = document.querySelector(
+    "#language-change-prompt"
+  ) as HTMLElement;
+
+  const messageAlreadyDismissed =
+    sessionStorage.getItem("languagePromptDismissed") === "true";
+
+  if (messageAlreadyDismissed && languageChangePrompt)
+    languageChangePrompt.style.display = "none";
+
+  rejectLanguageChangeBtn?.addEventListener("click", () => {
+    sessionStorage.setItem("languagePromptDismissed", "true");
+    if (languageChangePrompt) languageChangePrompt.style.display = "none";
+  });
 </script>

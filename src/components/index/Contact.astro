@@ -1,0 +1,41 @@
+---
+import EmailIcon from "../icons/EmailIcon.astro";
+import GithubIcon from "../icons/GithubIcon.astro";
+import LinkedInIcon from "../icons/LinkedInIcon.astro";
+
+const { title } = Astro.props;
+
+if (!title) throw new Error("A title is required for Contact");
+---
+
+<div class="contact-info">
+  <h2 class="contact-title">{title}</h2>
+  <div class="contact-links">
+    <div>
+      <a
+        href="mailto:briandedgonzalez@gmail.com"
+        target="_blank"
+        aria-label="Email"
+        class="contact-link"
+        ><EmailIcon />
+      </a>
+    </div>
+    <div>
+      <a
+        href="https://www.linkedin.com/in/brian-gonzalez-a96a38359/"
+        target="_blank"
+        aria-label="LinkedIn"
+        class="contact-link"
+        ><LinkedInIcon />
+      </a>
+    </div>
+    <div>
+      <a
+        href="https://github.com/bddGonzalez"
+        target="_blank"
+        class="contact-link"
+        aria-label="Github"><GithubIcon height={40} width={40} /></a
+      >
+    </div>
+  </div>
+</div>

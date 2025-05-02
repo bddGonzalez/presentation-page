@@ -1,0 +1,10 @@
+---
+const { title, secondary } = Astro.props;
+
+if (!title) throw new Error("Title is required for Hero");
+---
+
+<div class="hero-container">
+  <h1 class="hero-text"><Fragment set:html={title} /></h1>
+  {secondary && <p class="hero-subtitle">{secondary}</p>}
+</div>

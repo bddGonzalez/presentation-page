@@ -1,0 +1,23 @@
+---
+const { aboutMeTitle, aboutMe, problemSolving } = Astro.props;
+
+if (!aboutMeTitle || !aboutMe || !problemSolving)
+  throw new Error("Missing props in AboutSkills");
+---
+
+<section class="about-skills-contact-section">
+  <div class="about-me">
+    <h2 class="about-me-title">{aboutMeTitle}</h2>
+    <p>
+      {aboutMe}
+    </p>
+  </div>
+
+  <div class="problem-solving-contact-container">
+    <div class="problem-solving">
+      <p>
+        {problemSolving}
+      </p>
+    </div>
+  </div>
+</section>
