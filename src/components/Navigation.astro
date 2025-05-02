@@ -43,7 +43,7 @@ const pathname = Astro.originPathname.replace("/es", "");
 ---
 
 {
-  !prefersSpanishAndIsInEn && (
+  prefersSpanishAndIsInEn && (
     <div
       style="width:100%;background-color:#e8e8e8;padding:1rem;font-weight: 900;display:flex;gap:20px;"
       id="language-change-prompt"
