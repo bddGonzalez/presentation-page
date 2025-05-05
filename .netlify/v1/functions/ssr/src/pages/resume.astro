@@ -1,0 +1,66 @@
+---
+import "../styles/globals.css";
+import "../styles/resume.css";
+import RootLayout from "../layouts/RootLayout.astro";
+import ResumeHeader from "../components/resume/ResumeHeader.astro";
+import ResumeContainer from "../components/resume/ResumeContainer.astro";
+import ResumeAside from "../components/resume/aside/ResumeAside.astro";
+import Separator from "../components/Separator.astro";
+import ContactInfo from "../components/resume/aside/ContactInfo.astro";
+import LanguagesInfo from "../components/resume/aside/LanguagesInfo.astro";
+import SkillsInfo from "../components/resume/aside/SkillsInfo.astro";
+import ResumeBody from "../components/resume/body/ResumeBody.astro";
+import ProfileInfo from "../components/resume/body/ProfileInfo.astro";
+import ExperienceInfo from "../components/resume/body/ExperienceInfo.astro";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Brian Gonzalez | Full-Stack Developer</title>
+  </head>
+  <body>
+    <RootLayout>
+      <main>
+        <ResumeHeader title="Brian Gonzalez" subtitle="Full-Stack Developer" />
+        <ResumeContainer>
+          <ResumeAside>
+            <ContactInfo title="Contact" />
+            <Separator />
+            <LanguagesInfo
+              title="Languages"
+              languages={["Spanish", "English"]}
+            />
+            <Separator />
+            <SkillsInfo title="Skills" />
+          </ResumeAside>
+          <Separator orientation="vertical" />
+          <ResumeBody>
+            <ProfileInfo
+              title="Profile"
+              text="Versatile Full-Stack Developer proficient in building scalable web applications with a strong emphasis on clean code and efficient problem-solving."
+            />
+            <Separator />
+            <ExperienceInfo
+              title="Work Experience"
+              experiences={[
+                {
+                  at: "Junior Full-Stack Developer, Binks, October 2023 – Present",
+                  summary:
+                    "My experience at Binks provided a strong foundation in full-stack development and Clean Code best practices. These skills have been directly applied and further developed in the following projects, demonstrating my ability to successfully tackle complex technical challenges to deliver project goals.",
+                  points: [
+                    "Developed and maintained a specialized construction management system with complex requirements for a medium-sized enterprise. As a key member of a small team, I contributed extensively to both the client-side (TypeScript, Next.js, Ant Design, Zod, React Hook Form, Redux Toolkit Query) and the server-side (TypeScript, NestJS, TypeORM, PostgreSQL). A significant challenge involved designing and implementing the back-end logic to calculate, parse, and generate massive PDF files containing employee paychecks, ensuring accuracy and performance for a large volume of data. I also proactively identified, diagnosed, and resolved several critical production issues, ensuring system stability and minimizing user impact.",
+                    "As a Full-Stack Developer within a small team, I was instrumental in building a multi-tenant SaaS platform for construction management. My responsibilities encompassed the entire technology stack, from developing the user-facing control panel and application front-ends (utilizing TypeScript, React-based libraries like Shadcn UI and TanStack Query, Axios, and Socket.IO Client) to architecting a complex NestJS back-end with TypeORM and PostgreSQL. Key backend contributions included implementing intricate CORS logic, a singleton pattern for managing dynamic tenant database connections, and the automated provisioning of new tenant databases with associated data migration. I also integrated Redis for caching, Socket.IO for real-time gateways, and a third-party mailing library for invitations.",
+                  ],
+                },
+              ]}
+            />
+          </ResumeBody>
+        </ResumeContainer>
+      </main>
+    </RootLayout>
+  </body>
+</html>
