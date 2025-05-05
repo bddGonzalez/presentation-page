@@ -11,27 +11,31 @@ type Link = {
   extraProps?: Record<string, any>;
 } & ({ label: string } | { Icon: (props: Record<string, any>) => any });
 
+const pushedLinks: Link[] = [
+  /* {
+    href: "https://www.linkedin.com/in/brian-gonzalez-a96a38359/",
+    Icon: LinkedInIcon,
+    },
+    { href: "mailto:briandedgonzalez@gmail.com", Icon: EmailIcon },
+    {
+      href: "https://github.com/bddGonzalez",
+      Icon: GithubIcon,
+      extraProps: { width: 40, height: 40 },
+      }, */
+];
+const isEnglish = !Astro.originPathname.includes("/es");
+const prefersSpanishAndIsInEn = Astro.preferredLocale === "es" && isEnglish;
+const pathname = Astro.originPathname.replace("/es/", "/");
 const links: Link[] = [
+  {
+    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en"),
+    label: isEnglish ? "Main Page" : "Inicio",
+  },
   {
     href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "resume"),
     label: "Resume",
   },
 ];
-const pushedLinks: Link[] = [
-  /* {
-    href: "https://www.linkedin.com/in/brian-gonzalez-a96a38359/",
-    Icon: LinkedInIcon,
-  },
-  { href: "mailto:briandedgonzalez@gmail.com", Icon: EmailIcon },
-  {
-    href: "https://github.com/bddGonzalez",
-    Icon: GithubIcon,
-    extraProps: { width: 40, height: 40 },
-  }, */
-];
-const prefersSpanishAndIsInEn =
-  Astro.preferredLocale === "es" && !Astro.originPathname.includes("/es");
-const pathname = Astro.originPathname.replace("/es", "");
 ---
 
 {
@@ -67,14 +71,16 @@ const pathname = Astro.originPathname.replace("/es", "");
     <button id="btn-close" class="nav-close"><CrossIcon /></button>
     <ul class="nav-links">
       {
-        links.map(({ href, label, Icon, extraProps }) => (
-          <li style="list-style: none !important;">
-            <a href={href} style="font-weight:bolder;">
-              {label && <p>{label}</p>}
-              {Icon && <Icon {...extraProps} />}
-            </a>
-          </li>
-        ))
+        links
+          .filter(({ href }) => href !== pathname)
+          .map(({ href, label, Icon, extraProps }) => (
+            <li style="list-style: none !important;">
+              <a href={href} style="font-weight:bolder;">
+                {label && <p>{label}</p>}
+                {Icon && <Icon {...extraProps} />}
+              </a>
+            </li>
+          ))
       }
       <div class="pushed-links">
         {

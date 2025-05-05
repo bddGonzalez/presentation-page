@@ -24,6 +24,11 @@
     gap: 0 2rem;
 }
 
+.resume-main-container {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+}
+
 .resume-container {
     display: flex;
     flex-direction: column;
@@ -39,6 +44,14 @@ ul > li {
 }
 
 @media (max-width: 768px) {
+    .resume-main-container {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+    .profile-container {
+        border-top: 1px solid black;
+        padding-top: 1rem;
+    }
     .picture-container {
         display:none;
     }
