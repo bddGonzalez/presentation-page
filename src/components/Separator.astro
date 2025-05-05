@@ -1,0 +1,14 @@
+---
+interface Props {
+  orientation?: "horizontal" | "vertical";
+  style?: string;
+}
+const { orientation = "horizontal", style } = Astro.props;
+
+const separatorStyle =
+  (orientation === "horizontal"
+    ? "border-bottom: 1px solid black;width:100%;"
+    : "border-left:1px solid black;height:100%;") + style;
+---
+
+<div style={separatorStyle}></div>

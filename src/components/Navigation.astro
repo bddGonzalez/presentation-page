@@ -13,16 +13,8 @@ type Link = {
 
 const links: Link[] = [
   {
-    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "work"),
-    label: "Work",
-  },
-  {
-    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "about"),
-    label: "About",
-  },
-  {
-    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "contact"),
-    label: "Contact",
+    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "resume"),
+    label: "Resume",
   },
 ];
 const pushedLinks: Link[] = [
@@ -76,7 +68,7 @@ const pathname = Astro.originPathname.replace("/es", "");
     <ul class="nav-links">
       {
         links.map(({ href, label, Icon, extraProps }) => (
-          <li>
+          <li style="list-style: none !important;">
             <a href={href} style="font-weight:bolder;">
               {label && <p>{label}</p>}
               {Icon && <Icon {...extraProps} />}
@@ -137,7 +129,6 @@ const pathname = Astro.originPathname.replace("/es", "");
   });
   media.addEventListener("change", setupNav);
 
-  // This here is for the reject-language-change button
   const rejectLanguageChangeBtn = document.querySelector(
     "#reject-language-change"
   ) as HTMLElement;

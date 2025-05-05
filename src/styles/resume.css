@@ -1,0 +1,48 @@
+.hero-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hero-text {
+    font-family: "Inter";
+    font-size: 4em;
+    font-weight: bold;
+}
+
+.hero-subtitle {
+    font-size: 1.2em;
+    text-align: center;
+    color: #555;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    gap: 0 2rem;
+}
+
+.resume-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.skills-info {
+    padding: 0 1rem;
+}
+
+ul > li {
+    list-style: circle !important;
+}
+
+@media (max-width: 768px) {
+    .picture-container {
+        display:none;
+    }
+}
+
+@media (max-width: 480px) {
+}

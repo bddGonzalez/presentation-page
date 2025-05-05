@@ -1,0 +1,13 @@
+---
+interface Props {
+  title: string;
+  languages: string[];
+}
+
+const { title, languages } = Astro.props;
+---
+
+<div class="resume-container">
+  <h2>{title}</h2>
+  {languages.map((lang) => <p>{lang}</p>)}
+</div>

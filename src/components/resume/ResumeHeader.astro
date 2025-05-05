@@ -1,0 +1,22 @@
+---
+import { Image } from "astro:assets";
+import MyPicture from "../../my_picture.jpg";
+import Separator from "../Separator.astro";
+interface Props {
+  title: string;
+  subtitle?: string;
+}
+
+const { title, subtitle } = Astro.props;
+---
+
+<div class="header">
+  <div class="picture-container">
+    <Image src={MyPicture} alt="My picture" height={100} width={80} />
+  </div>
+  <div class="hero-container">
+    <h1 class="hero-text"><Fragment set:html={title} /></h1>
+    {subtitle && <p class="hero-subtitle">{subtitle}</p>}
+  </div>
+</div>
+<Separator />

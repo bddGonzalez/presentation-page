@@ -1,0 +1,37 @@
+---
+import Separator from '../../Separator.astro';
+
+type WorkExperience = {
+    at: string
+    summary: string
+    points?: string[]
+};
+
+interface Props {
+  title: string;
+  experiences: WorkExperience[]
+}
+
+const { title, experiences } = Astro.props;
+---
+
+<div class="resume-container">
+  <h2>{title}</h2>
+  {!!experiences.length && <div>
+    {experiences.map((exp) => (
+        <h3>{exp.at}</h3>
+        <p style="margin-top: 1rem;">{exp.summary}</p>
+        <div>
+            {!!exp.points?.length && 
+            <ul style="padding:1rem;">
+                {exp.points.map((point, i) => (<>
+                    <li>{point}</li>
+                    {i !== exp.points!.length - 1 ? <Separator style='margin:1rem 0;' /> : false}
+                    </>
+                    ))}
+            </ul>
+            }
+        </div>
+    ))}
+  </div>}
+</div>
