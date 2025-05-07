@@ -31,7 +31,7 @@ const imageProps: RemoteImageProps | false =
   .skill-card {
     padding: 15px;
     background-color: #e8e8e8;
-    border-radius: 15px;
+    border-radius: 0px;
     overflow: hidden;
     place-items: center;
     display: flex;
@@ -40,6 +40,9 @@ const imageProps: RemoteImageProps | false =
   }
 
   @media (min-width: 768px) {
+    .skill-card {
+      border-radius: 15px;
+    }
     .skill-card:hover {
       transform: scale(1.1, 1.1);
     }

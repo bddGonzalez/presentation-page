@@ -3,20 +3,23 @@ const { aboutMeTitle, aboutMe, problemSolving } = Astro.props;
 
 if (!aboutMeTitle || !aboutMe || !problemSolving)
   throw new Error("Missing props in AboutSkills");
+
+const parseText = (text: string): string =>
+  text.replaceAll("**", "<strong>").replaceAll("*/*", "</strong>");
 ---
 
 <section class="about-skills-contact-section">
   <div class="about-me">
     <h2 class="about-me-title">{aboutMeTitle}</h2>
     <p>
-      {aboutMe}
+      <Fragment set:html={parseText(aboutMe)} />
     </p>
   </div>
 
   <div class="problem-solving-contact-container">
     <div class="problem-solving">
       <p>
-        {problemSolving}
+        <Fragment set:html={parseText(problemSolving)} />
       </p>
     </div>
   </div>

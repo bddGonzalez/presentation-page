@@ -53,6 +53,10 @@
     text-align: center;
 }
 
+.experience-info-section, .skills-info-container, .languages-section {
+    margin-top: 1rem;
+}
+
 .skills-info {
     padding: 0 1rem;
     list-style: disc;

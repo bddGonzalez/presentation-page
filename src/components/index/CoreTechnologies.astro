@@ -9,12 +9,12 @@ if (!title || !summary || !skills) throw new Error("Skill issues");
 
 <section class="core-technologies-section">
   <h2 class="core-technologies-title">{title}</h2>
-  <div class="skills-grid">
-    {skills.map((skill: Skill) => <SkillCard skill={skill} />)}
-  </div>
   <div class="experience-summary-card">
     <p>
       {summary}
     </p>
+  </div>
+  <div class="skills-grid">
+    {skills.map((skill: Skill) => <SkillCard skill={skill} />)}
   </div>
 </section>

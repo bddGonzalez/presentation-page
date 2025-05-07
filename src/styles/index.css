@@ -1,3 +1,7 @@
+p {
+    line-height: 1.5;
+}
+
 .hero-container {
     display: flex;
     flex-direction: column;
@@ -33,23 +37,21 @@
 .skills-grid {
     padding: 2rem 0;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
-    margin-bottom: 2rem;
 }
 
 .experience-summary-card {
     background-color: #e8e8e8;
     padding: 1.5rem;
     border-radius: 15px;
-    margin-bottom: 2rem;
+    margin-top: 2rem;
 }
 
 .about-skills-contact-section {
     display: grid;
     grid-template-columns: 1fr;
     gap: 2rem;
-    padding: 1rem;
     margin-bottom: 2rem;
 }
 
@@ -81,16 +83,18 @@
     justify-content: center;
 }
 
-.core-technologies-section {
-    padding:1rem;
-}
+/* .core-technologies-section {} */
 
 .core-technologies-title {
-    margin-top: 5rem;
+    margin-top: 2rem;
     text-align: center;
 }
 
 @media (max-width: 768px) {
+    .about-skills-contact-section {
+        padding:1rem;
+    }
+
     .hero-text {
         font-size: 2.5em;
     }
@@ -124,5 +128,11 @@
 
     .contact-links {
         flex-direction: row;
+    }
+}
+
+@media (min-width: 768px) {
+    main {
+        padding: 4rem;
     }
 }
