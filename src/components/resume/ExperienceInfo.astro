@@ -29,15 +29,15 @@ const isEnglish = !Astro.originPathname.includes("/es");
   <Separator />
   {!!experiences.length && <div>
     {experiences.map((exp) => (
-        <h1 style="padding-block-end: 1rem;">{exp.at}</h1>
+        <h1 class="padding-be">{exp.at}</h1>
         <h4>{exp.role}</h4>
-        <p style="margin: 1rem 0;">{exp.summary}</p>
-        <h2 style="padding-block-end: 1rem;">{isEnglish ? 'Projects' : 'Proyectos'}</h2>
-        <div style="display: flex;flex-direction:column;gap:1rem;">
-                {exp.projects!.map((project) => (<article style="padding: 0 1rem 0 1rem;">
+        <p class="project-summary">{exp.summary}</p>
+        <h2 class="padding-be">{isEnglish ? 'Projects' : 'Proyectos'}</h2>
+        <div class="project-container">
+                {exp.projects!.map((project) => (<article class="project-art">
                     <h4>- {project.name}:</h4>
-                    <p style="padding:0 1rem;">{project.description}</p>
-                    <ul style="padding:0 2.5rem;">
+                    <p class="project-description">{project.description}</p>
+                    <ul class="project-info">
                       <li><p><strong>Stack:</strong>{project.stack}</p></li>
                       <li><p><strong>{isEnglish ? 'A challenge' : 'Un desafio'}:</strong>{project.challenge}</p></li>
                     </ul>
