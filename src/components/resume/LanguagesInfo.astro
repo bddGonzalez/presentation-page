@@ -1,4 +1,6 @@
 ---
+import Separator from "../Separator.astro";
+
 interface Props {
   title: string;
   languages: string[];
@@ -9,6 +11,7 @@ const { title, languages } = Astro.props;
 
 <div class="resume-container languages-section">
   <h2>{title}</h2>
+  <Separator />
   <p>
     {languages.join(", ")}
   </p>

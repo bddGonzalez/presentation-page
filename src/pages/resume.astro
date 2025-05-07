@@ -25,14 +25,13 @@ import ProfileInfo from "../components/resume/ProfileInfo.astro";
       <main>
         <ResumeHeader title="Brian Gonzalez" subtitle="Full-Stack Developer" />
         <ResumeBody>
-          <ContactInfo title="Contact" />
-          <LanguagesInfo title="Languages" languages={["Spanish", "English"]} />
+          <ContactInfo title="" />
           <ProfileInfo
-            title="Profile"
+            title=""
             text="Versatile Full-Stack Developer proficient in building scalable web applications with a strong emphasis on clean code and efficient problem-solving."
           />
           <ExperienceInfo
-            title="Work Experience"
+            title="Experience"
             experiences={[
               {
                 at: "Binks",
@@ -71,7 +70,9 @@ import ProfileInfo from "../components/resume/ProfileInfo.astro";
               },
             ]}
           />
+
           <SkillsInfo title="Skills" />
+          <LanguagesInfo title="Languages" languages={["Spanish", "English"]} />
         </ResumeBody>
       </main>
     </RootLayout>

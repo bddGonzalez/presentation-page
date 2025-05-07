@@ -67,6 +67,13 @@ ul > li {
     list-style: circle !important;
 }
 
+@media (min-width: 768px) {
+    p {
+            line-height: 1.5;
+        }
+    
+}
+
 @media (max-width: 768px) {
     .resume-main-container {
         display: grid;

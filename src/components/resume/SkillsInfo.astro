@@ -1,4 +1,6 @@
 ---
+import Separator from "../Separator.astro";
+
 interface Props {
   title: string;
 }
@@ -8,6 +10,7 @@ const { title } = Astro.props;
 
 <div class="resume-container">
   <h2 style="text-align:center;">{title}</h2>
+  <Separator />
   <ul class="skills-info">
     <li>• TypeScript</li>
     <li>• JavaScript</li>
