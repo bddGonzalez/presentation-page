@@ -3,15 +3,12 @@ import "../styles/globals.css";
 import "../styles/resume.css";
 import RootLayout from "../layouts/RootLayout.astro";
 import ResumeHeader from "../components/resume/ResumeHeader.astro";
-import ResumeContainer from "../components/resume/ResumeContainer.astro";
-import ResumeAside from "../components/resume/aside/ResumeAside.astro";
-import Separator from "../components/Separator.astro";
-import ContactInfo from "../components/resume/aside/ContactInfo.astro";
-import LanguagesInfo from "../components/resume/aside/LanguagesInfo.astro";
-import SkillsInfo from "../components/resume/aside/SkillsInfo.astro";
-import ResumeBody from "../components/resume/body/ResumeBody.astro";
-import ProfileInfo from "../components/resume/body/ProfileInfo.astro";
-import ExperienceInfo from "../components/resume/body/ExperienceInfo.astro";
+import ContactInfo from "../components/resume/ContactInfo.astro";
+import LanguagesInfo from "../components/resume/LanguagesInfo.astro";
+import SkillsInfo from "../components/resume/SkillsInfo.astro";
+import ResumeBody from "../components/resume/ResumeBody.astro";
+import ExperienceInfo from "../components/resume/ExperienceInfo.astro";
+import ProfileInfo from "../components/resume/ProfileInfo.astro";
 ---
 
 <html lang="en">
@@ -26,40 +23,55 @@ import ExperienceInfo from "../components/resume/body/ExperienceInfo.astro";
     <RootLayout>
       <main>
         <ResumeHeader title="Brian Gonzalez" subtitle="Full-Stack Developer" />
-        <ResumeContainer>
-          <ResumeAside>
-            <ContactInfo title="Contact" />
-            <Separator />
-            <LanguagesInfo
-              title="Languages"
-              languages={["Spanish", "English"]}
-            />
-            <Separator />
-            <SkillsInfo title="Skills" />
-          </ResumeAside>
-          <Separator orientation="vertical" />
-          <ResumeBody>
-            <ProfileInfo
-              title="Profile"
-              text="Versatile Full-Stack Developer proficient in building scalable web applications with a strong emphasis on clean code and efficient problem-solving."
-            />
-            <Separator />
-            <ExperienceInfo
-              title="Work Experience"
-              experiences={[
-                {
-                  at: "Junior Full-Stack Developer, Binks, October 2023 – Present",
-                  summary:
-                    "My experience at Binks provided a strong foundation in full-stack development and Clean Code best practices. These skills have been directly applied and further developed in the following projects, demonstrating my ability to successfully tackle complex technical challenges to deliver project goals.",
-                  points: [
-                    "Developed and maintained a specialized construction management system with complex requirements for a medium-sized enterprise. As a key member of a small team, I contributed extensively to both the client-side (TypeScript, Next.js, Ant Design, Zod, React Hook Form, Redux Toolkit Query) and the server-side (TypeScript, NestJS, TypeORM, PostgreSQL). A significant challenge involved designing and implementing the back-end logic to calculate, parse, and generate massive PDF files containing employee paychecks, ensuring accuracy and performance for a large volume of data. I also proactively identified, diagnosed, and resolved several critical production issues, ensuring system stability and minimizing user impact.",
-                    "As a Full-Stack Developer within a small team, I was instrumental in building a multi-tenant SaaS platform for construction management. My responsibilities encompassed the entire technology stack, from developing the user-facing control panel and application front-ends (utilizing TypeScript, React-based libraries like Shadcn UI and TanStack Query, Axios, and Socket.IO Client) to architecting a complex NestJS back-end with TypeORM and PostgreSQL. Key backend contributions included implementing intricate CORS logic, a singleton pattern for managing dynamic tenant database connections, and the automated provisioning of new tenant databases with associated data migration. I also integrated Redis for caching, Socket.IO for real-time gateways, and a third-party mailing library for invitations.",
-                  ],
-                },
-              ]}
-            />
-          </ResumeBody>
-        </ResumeContainer>
+        <ResumeBody>
+          <ContactInfo title="Contact" />
+          <LanguagesInfo title="Languages" languages={["Spanish", "English"]} />
+          <ProfileInfo
+            title="Profile"
+            text="Versatile Full-Stack Developer proficient in building scalable web applications with a strong emphasis on clean code and efficient problem-solving."
+          />
+          <ExperienceInfo
+            title="Work Experience"
+            experiences={[
+              {
+                at: "Binks",
+                role: "Full-stack developer",
+                summary:
+                  "My experience at Binks provided a strong foundation in full-stack development and Clean Code best practices. These skills have been directly applied and further developed in the following projects, demonstrating my ability to successfully tackle complex technical challenges to deliver project goals.",
+                projects: [
+                  {
+                    name: "Specialized construction management system",
+                    description:
+                      "As a key member of a small team, I contributed extensively to both the client-side and the server-side.",
+                    stack:
+                      "TypeScript, Next.js, Ant Design, Zod, React Hook Form, Redux Toolkit Query, NestJS, TypeORM, PostgreSQL, Jest, Cypress ",
+                    challenge:
+                      "A key challenge involved efficiently generating a high volume of accurate employee paychecks in PDF format through complex data processing. Additionally, I ensured system reliability and minimized disruptions by quickly identifying and resolving critical production issues, often within minutes.",
+                  },
+                  {
+                    name: "Multi-tenant SaaS platform for construction management",
+                    description:
+                      "My responsibilities encompassed the entire technology stack, from developing the user-facing control panel and application front-ends to architecting a complex back-end.",
+                    stack:
+                      "TypeScript, Shadcn UI, TanStack-Query, Tanstack-table, Axios, Socket.IO, Tailwind CSS, NestJS, TypeORM, PostgreSQL, Redis (caching), SendGrid, Jest, Cypress",
+                    challenge:
+                      "To effectively serve a growing number of tenants, I implemented a singleton pattern that provided a fast and reliable way to efficiently manage multiple database connections, ensuring the platform's scalability.",
+                  },
+                  {
+                    name: "Internal Application Template",
+                    description:
+                      "I was responsible for the end-to-end development of a new internal tracking tool. This involved establishing the complete development infrastructure, including containerizing the Ruby on Rails API, Next.js client, and PostgreSQL database using Docker for consistent and portable environments. I also developed Bash scripts for streamlined application startup and a dedicated setup script to automate hostname aliasing for convenient access (bypassing localhost) and install all necessary project dependencies.",
+                    stack:
+                      "Bash, Docker, TypeScript, Ruby, Next.js, Ruby on Rails, PostgreSQL",
+                    challenge:
+                      "To streamline the creation of multiple applications, I implemented a development template ensuring consistency and portability across different work environments by learning technologies like Docker and Bash to ensure compatibility between various operating systems.",
+                  },
+                ],
+              },
+            ]}
+          />
+          <SkillsInfo title="Skills" />
+        </ResumeBody>
       </main>
     </RootLayout>
   </body>

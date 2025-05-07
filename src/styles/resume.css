@@ -1,9 +1,14 @@
+.picture-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .hero-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-bottom: 3rem;
 }
 
 .hero-text {
@@ -20,8 +25,9 @@
 
 .header {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    gap: 0 2rem;
+    gap: 2rem 2rem 0px 2rem;
 }
 
 .resume-main-container {
@@ -35,8 +41,26 @@
     gap: 1rem;
 }
 
+.contact-section {
+    text-align: center;
+}
+
+.languages-section {
+    text-align: center;
+}
+
+.experience-info-title {
+    text-align: center;
+}
+
 .skills-info {
     padding: 0 1rem;
+    list-style: disc;
+}
+
+.skills-info > li {
+    display: inline-block;
+    list-style: disc;
 }
 
 ul > li {

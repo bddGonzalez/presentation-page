@@ -7,7 +7,9 @@ interface Props {
 const { title, languages } = Astro.props;
 ---
 
-<div class="resume-container">
+<div class="resume-container languages-section">
   <h2>{title}</h2>
-  {languages.map((lang) => <p>{lang}</p>)}
+  <p>
+    {languages.join(", ")}
+  </p>
 </div>
