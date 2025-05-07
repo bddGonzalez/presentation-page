@@ -1,6 +1,4 @@
 ---
-import Separator from '../../Separator.astro';
-
 type Project = {
   name: string
   description: string
@@ -32,14 +30,13 @@ const isEnglish = !Astro.originPathname.includes("/es");
         <h4>{exp.role}</h4>
         <p style="margin: 1rem 0;">{exp.summary}</p>
         <div style="display: flex;flex-direction:column;gap:1rem;">
-                {exp.projects!.map((project) => (<div style="padding: 0 1rem 0 1rem;">
-                    <p><h4>{project.name}:</h4>{' '}{project.description}</p>
+                {exp.projects!.map((project) => (<article style="padding: 0 1rem 0 1rem;">
+                    <p><h4 style="text-decoration: underline;">{project.name}:</h4>{' '}{project.description}</p>
                     <ul style="padding:0 1rem;">
                       <li><strong>Stack:</strong>{project.stack}</li>
                       <li><strong>{isEnglish ? 'A challenge' : 'Un desafio'}:</strong>{project.challenge}</li>
                     </ul>
-                    {/* {i !== exp.projects!.length - 1 ? <Separator style='margin:1rem 0;' /> : false} */}
-                    </div>
+                    </article>
                     ))}
         </div>
     ))}

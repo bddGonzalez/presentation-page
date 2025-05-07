@@ -1,47 +1,60 @@
-# Astro Starter Kit: Minimal
+# Portfolio Website
 
-```sh
-npm create astro@latest -- --template minimal
-```
+A minimal and responsive personal portfolio website built to showcase my skills, experience, and projects in web development.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+## Getting Started
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+This website is built using Astro, a modern static site builder. To run it locally, you'll need to have Node.js and npm installed on your machine.
 
-## 🚀 Project Structure
+1.  **Clone the repository:**
 
-Inside of your Astro project, you'll see the following folders and files:
+    ```bash
+    git clone https://github.com/bddGonzalez/presentation-page.git
+    cd presentation-page
+    ```
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+2.  **Install dependencies:**
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+    Using npm:
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+    ```bash
+    npm install
+    ```
 
-Any static assets, like images, can be placed in the `public/` directory.
+3.  **Start the development server:**
 
-## 🧞 Commands
+    Using npm:
 
-All commands are run from the root of the project, from a terminal:
+    ```bash
+    npm run dev
+    ```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+    This will start the Astro development server, and you can view the website in your browser at `http://localhost:4321`.
 
-## 👀 Want to learn more?
+## Features
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+This portfolio website includes the following sections:
+
+- **Homepage:** A brief introduction about me and my key skills.
+- **Resume:** A detailed overview of my professional experience and education.
+
+The design is intentionally minimal and responsive, focusing on clear and easy navigation across different devices.
+
+## Technologies Used
+
+- [Astro](https://astro.build/): A modern static site builder.
+- JavaScript/TypeScript: For scripting and type safety.
+- HTML: For the structure of the web pages.
+- CSS: For styling the website.
+
+## Deployment
+
+This website is deployed using [Netlify](https://www.netlify.com/). Changes pushed to the main branch of the linked repository are automatically built and deployed by Netlify.
+
+## Contact
+
+[briandedgonzalez@gmail.com](mailto:briandedgonzalez@gmail.com)
+
+[LinkedIn](www.linkedin.com/in/brian-gonzalez-a96a38359)
+
+[Github](https://github.com/bddGonzalez)

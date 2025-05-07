@@ -11,21 +11,15 @@ type Link = {
   extraProps?: Record<string, any>;
 } & ({ label: string } | { Icon: (props: Record<string, any>) => any });
 
-const pushedLinks: Link[] = [
-  /* {
-    href: "https://www.linkedin.com/in/brian-gonzalez-a96a38359/",
-    Icon: LinkedInIcon,
-    },
-    { href: "mailto:briandedgonzalez@gmail.com", Icon: EmailIcon },
-    {
-      href: "https://github.com/bddGonzalez",
-      Icon: GithubIcon,
-      extraProps: { width: 40, height: 40 },
-      }, */
-];
-const isEnglish = !Astro.originPathname.includes("/es");
+const origin = Astro.request.headers.get("Referer");
+
+if (!origin) throw new Error("Something went wrong!");
+
+const isEnglish = !origin.includes("/es/");
 const prefersSpanishAndIsInEn = Astro.preferredLocale === "es" && isEnglish;
-const pathname = Astro.originPathname.replace("/es/", "/");
+const pathname = origin
+  .replace(process.env.BASE_URL ?? "http://localhost:4321/", "/")
+  .replace("/es/", "/");
 const links: Link[] = [
   {
     href: getRelativeLocaleUrl(Astro.currentLocale ?? "en"),
@@ -82,18 +76,6 @@ const links: Link[] = [
             </li>
           ))
       }
-      <div class="pushed-links">
-        {
-          pushedLinks.map(({ href, label, Icon, extraProps }) => (
-            <li>
-              <a href={href} style="font-weight:bolder;" target="_blank">
-                {label && <p>{label}</p>}
-                {Icon && <Icon {...extraProps} />}
-              </a>
-            </li>
-          ))
-        }
-      </div>
     </ul>
   </div>
 </nav>
