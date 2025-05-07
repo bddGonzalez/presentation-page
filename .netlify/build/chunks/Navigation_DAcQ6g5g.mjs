@@ -1,4 +1,4 @@
-import { A as AstroError, h as MissingLocale, c as createComponent, s as spreadAttributes, u as unescapeHTML, e as renderTemplate, a as createAstro, d as renderComponent, i as renderScript, m as maybeRenderHead, b as addAttribute } from './astro/server_Chz44DTT.mjs';
+import { A as AstroError, h as MissingLocale, c as createComponent, s as spreadAttributes, u as unescapeHTML, b as renderTemplate, d as createAstro, r as renderComponent, i as renderScript, m as maybeRenderHead, e as addAttribute } from './astro/server_Z1Ea7FKf.mjs';
 import 'kleur/colors';
 import { appendForwardSlash, joinPaths } from '@astrojs/internal-helpers/path';
 import 'clsx';
