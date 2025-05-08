@@ -16,9 +16,8 @@ const origin = Astro.request.headers.get("Referer");
 if (!origin) throw new Error("Something went wrong!");
 
 const isEnglish = !origin.includes("/es/");
-const prefersSpanishAndIsInEn = Astro.preferredLocale === "es" && isEnglish;
 const pathname = origin
-  .replace(process.env.BASE_URL ?? "http://localhost:4321/", "/")
+  .replace(Astro.request.headers.get("origin") ?? "http://localhost:4321", "")
   .replace("/es/", "/");
 const links: Link[] = [
   {
@@ -33,7 +32,7 @@ const links: Link[] = [
 ---
 
 {
-  prefersSpanishAndIsInEn && (
+  isEnglish && (
     <div
       style="width:100%;background-color:#e8e8e8;padding:1rem;font-weight: 900;display:flex;gap:20px;"
       id="language-change-prompt"
@@ -66,9 +65,10 @@ const links: Link[] = [
     <ul class="nav-links">
       {
         links
-          .filter(({ href }) =>
-            href === "/" ? pathname !== "/" : !pathname.includes(href)
-          )
+          .filter(({ href }) => {
+            const parsedHref = href.replace("/es/", "/");
+            return pathname !== parsedHref;
+          })
           .map(({ href, label, Icon, extraProps }) => (
             <li style="list-style: none !important;">
               <a href={href} style="font-weight:bolder;">
