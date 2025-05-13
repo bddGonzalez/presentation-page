@@ -15,6 +15,23 @@
     overflow: hidden;
 }
 
+#comments-section {
+    background-color: var(--bg-main);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap:0.5rem;
+}
+
+.comment {
+    background-color: var(--bg-secondary);
+    padding: 0.5rem;
+}
+
+textarea {
+    resize: vertical;
+}
+
 main {
     background-color: var(--bg-main);
     color: var(--color);
@@ -101,6 +118,14 @@ li {
 }
 
 @media (min-width: 768px) {
+    .comment {
+        padding:1rem;
+    }
+    
+    #comments-section {
+        padding: 1rem;
+    }
+
     .post-container {
         padding: 4rem;
     }

@@ -1,5 +1,5 @@
 ---
-export const prerender = true;
+export const prerender = false;
 import { Code } from "astro/components";
 import ImplementationDetails from "../../components/posts/ImplementationDetails.astro";
 import PostContainer from "../../components/posts/PostContainer.astro";
@@ -8,6 +8,7 @@ import RootLayout from "../../layouts/RootLayout.astro";
 import "../../styles/globals.css";
 import "../../styles/posts.css";
 import CodeSnippet from "../../components/posts/CodeSnippet.astro";
+import CommentSection from "../../components/posts/CommentSection.astro";
 
 const escapedOriginPartsToRemove =
   "const originPartsToRemove: RegExp = new RegExp(String.raw`${protocol}|${host}|\\.`, 'g')";
@@ -1423,6 +1424,7 @@ rl.question('Press Enter to exit \n', () => {
                 the time to delve into our approach.
               </p>
             </div>
+            <CommentSection />
           </PostContent>
         </PostContainer>
       </main>

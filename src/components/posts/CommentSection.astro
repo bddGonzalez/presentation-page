@@ -1,0 +1,59 @@
+---
+import { db, Comment } from "astro:db";
+import { actions } from "astro:actions";
+
+const comments = await db.select().from(Comment);
+---
+
+<section id="comments-section">
+  <h2>Comments</h2>
+
+  <form
+    method="POST"
+    action={actions.addComment}
+    style="display: grid;grid-template-columns: auto 1fr auto;gap:20px;"
+    autocomplete="off"
+  >
+    <label>
+      Name
+      <input required type="text" name="author" style="width:100%;" />
+    </label>
+    <label>
+      Comment
+      <textarea required name="body" style="width:100%;"></textarea>
+    </label>
+    <button style="background-color: var(--emphasis-color);padding:1rem;"
+      >Submit</button
+    >
+    <p class="error"></p>
+  </form>
+
+  <script>
+    import { actions } from "astro:actions";
+
+    const form = document.querySelector("form");
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const { error } = await actions.addComment(formData);
+      if (!error) window.location.reload();
+      else {
+        const errors = document.getElementsByClassName("error");
+        errors[0].replaceChildren(
+          "An error occured, name can't be longer than 20 characters. Otherwise, try again later"
+        );
+      }
+    });
+  </script>
+
+  {
+    comments.map(({ author, body, createdAt }) => (
+      <article class="comment">
+        <p>
+          {author} - {createdAt.toLocaleDateString("es-ar")}
+        </p>
+        <p>{body}</p>
+      </article>
+    ))
+  }
+</section>
