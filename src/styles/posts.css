@@ -1,0 +1,134 @@
+#main-posts-table {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+}
+
+#posts-list {
+    padding: 0.5rem;
+}
+
+.post-item {
+    background-color: var(--bg-secondary);
+    padding: 1rem 0.5rem;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+main {
+    background-color: var(--bg-main);
+    color: var(--color);
+}
+
+a {
+    color: var(--emphasis-color);
+    text-decoration: underline;
+    line-height: 1.5;
+    font-size: larger;
+}
+
+p {
+    line-height: 1.5;
+    font-size: larger;
+}
+
+li {
+    list-style: disc;
+}
+
+#table-of-contents {
+    background-color: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.post-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.post-content {
+    border-radius: 15px;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    color: var(--color);
+    padding: 15px;
+    margin: 1rem 0;
+}
+
+#shift-rationale {
+    margin: 2rem 0;
+}
+
+#inspired-by, #closing-thoughts, #shift-rationale > ul, #implementation-details > ul, .sub-list {
+    display:flex;
+    flex-direction: column;
+    gap:1rem;
+}
+
+#closing-thoughts {
+    margin-top: 1rem;
+}
+
+.sub-list {
+    gap:0.2rem;
+}
+
+#code-snippets {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.code-snippet {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.code-block {
+    padding: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .post-container {
+        padding: 4rem;
+    }
+
+    .post-content {
+        margin: 2rem 0;
+        padding: 2rem;
+    }
+
+    #shift-rationale>ul,
+    #implementation-details>ul,
+    .sub-list {
+        padding: 1rem;
+    }
+
+    .code-block {
+        padding: 1rem;
+    }
+
+    #main-posts-table {
+        padding:2rem;
+    }
+
+    #posts-list {
+        padding: 1rem;
+    }
+
+    .post-item {
+        padding:2rem;
+    }
+}

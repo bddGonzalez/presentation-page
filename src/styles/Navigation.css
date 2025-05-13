@@ -4,7 +4,13 @@ button {
 }
 
 nav {
+    background-color: var(--bg-main);
+    color: var(--color);
     display: flex;
+}
+
+svg {
+    color: var(--emphasis-color)
 }
 
 .pushed-links {
@@ -35,6 +41,10 @@ nav {
     display: none;
 }
 
+.nav-content {
+    background-color: var(--bg-main);
+}
+
 @media (min-width: 768px) {
     .nav-content {
         width: 100%;
@@ -53,7 +63,6 @@ nav {
     .nav-content {
         position: fixed;
         inset: 0 0 0 40vw;
-        background-color: #ffff;
         display: none;
     }
 

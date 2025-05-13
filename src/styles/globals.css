@@ -1,3 +1,19 @@
+:root {
+    --bg-main: #ffff;
+    --bg-secondary: #c9c9c9;
+    --emphasis-color: #2f3d5c;
+    --color: #161625;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-main: #161625;
+        --bg-secondary: #2f3d5c;
+        --emphasis-color: #86aaf9;
+        --color: #fff;
+    }
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -6,13 +22,25 @@
 body {
     background-color: #f9f9f9;
     background-image: linear-gradient(to bottom, #f9f9f9, #ffffff);
-    font-family: 'Poppins', Courier, monospace;
+    font-family: 'Open Sans', Courier, monospace;
+}
+
+html, main {
+    min-height: screen;
+    background-color: var(--bg-main);
+    color: var(--color);
+}
+
+a {
+    color: var(--emphasis-color);
+    text-decoration: underline;
+}
+
+p {
+    line-height: 1.5;
+    font-size: larger;
 }
 
 li {
     list-style: none;
-}
-
-a {
-    text-decoration: none;
 }

@@ -20,7 +20,7 @@ p {
 .hero-subtitle {
     font-size: 1.2em;
     text-align: center;
-    color: #555;
+    color: var(--color);
 }
 
 .tech-stack-section {
@@ -42,7 +42,7 @@ p {
 }
 
 .experience-summary-card {
-    background-color: #e8e8e8;
+    background-color: var(--bg-secondary);
     padding: 1.5rem;
     border-radius: 15px;
     margin-top: 2rem;

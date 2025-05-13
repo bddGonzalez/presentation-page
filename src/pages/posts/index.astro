@@ -1,0 +1,39 @@
+---
+import RootLayout from "../../layouts/RootLayout.astro";
+import "../../styles/globals.css";
+import "../../styles/posts.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Brian Gonzalez | Full-Stack Developer</title>
+  </head>
+  <body>
+    <RootLayout>
+      <main>
+        <div id="main-posts-table">
+          <h1>Posts</h1>
+          <ul id="posts-list">
+            <li class="post-item">
+              <h2>
+                <a href="/posts/multi-tenant-architecture"
+                  >Multi-tenant SaaS Architecture with NestJS, TypeORM and
+                  PostgreSQL</a
+                >
+              </h2>
+              <p>
+                A deep dive into building a scalable multi-tenant application
+                with NestJS, TypeORM and PostgreSQL for a database-per-tenant
+                strategy.
+              </p>
+            </li>
+          </ul>
+        </div>
+      </main></RootLayout
+    ></body
+  >
+</html>

@@ -1,0 +1,17 @@
+---
+export interface Props {
+  description: string;
+  children: HTMLElement | HTMLElement[];
+}
+
+const { description } = Astro.props;
+---
+
+<div id="implementation-details">
+  <h2>
+    {description}
+  </h2>
+  <ul>
+    <slot />
+  </ul>
+</div>

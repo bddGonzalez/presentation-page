@@ -28,26 +28,27 @@ const links: Link[] = [
     href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "resume"),
     label: isEnglish ? "Resume" : "Curriculum",
   },
+  {
+    href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "posts"),
+    label: "Posts",
+  },
 ];
 ---
 
 {
   isEnglish && (
     <div
-      style="width:100%;background-color:#e8e8e8;padding:1rem;font-weight: 900;display:flex;gap:20px;"
+      style="background-color:#e8e8e8;color:#1F3760;padding:1rem;font-weight: 900;display:flex;gap:20px;"
       id="language-change-prompt"
     >
-      ¿Cambiar a español?{" "}
+      <p>¿Cambiar a español?</p>
       <a
-        style="color: #1F3760; text-decoration:underline;"
+        style="text-decoration:underline; color:#1F3760;"
         href={getRelativeLocaleUrl("es", pathname)}
       >
         Si
       </a>
-      <button
-        id="reject-language-change"
-        style="color: #1F3760; text-decoration:underline;"
-      >
+      <button id="reject-language-change" style="text-decoration:underline;">
         No
       </button>
     </div>
