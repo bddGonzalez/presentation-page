@@ -81,6 +81,11 @@ export default function CommentSection({ postId }: { postId: number }) {
   return (
     <section id="comments-section">
       <h2>Comments</h2>
+      <CommentFormModal
+        postId={postId}
+        onSuccess={updateComments}
+        trigger="Add a comment"
+      />
       {currentUserMail === undefined ? (
         "LOADING"
       ) : (

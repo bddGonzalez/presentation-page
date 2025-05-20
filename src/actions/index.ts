@@ -1,7 +1,9 @@
 import { db, Comment, eq, CommentReply } from "astro:db";
 import { defineAction, type ActionAPIContext } from "astro:actions";
 import { z } from "astro:schema";
-import * as jwt from "jsonwebtoken";
+// import * as jwt from "jsonwebtoken";
+import pkg from "jsonwebtoken";
+const { verify, TokenExpiredError, JsonWebTokenError } = pkg;
 
 export const server = {
   addComment: defineAction({
@@ -54,27 +56,26 @@ export const server = {
 
 export const getMail = async (ctx: ActionAPIContext): Promise<string> => {
   const rawToken = ctx.cookies.get("Authorization");
+  console.log({ rawToken });
   if (!rawToken) throw new Error("Something went wrong: 1");
   const [bearer, token] = rawToken.value.split(" ");
   if (bearer !== "Bearer" || !token || !import.meta.env.JSONWEBTOKEN_SECRET)
     throw new Error("Something went wrong: 2");
-  let payload: jwt.JwtPayload;
+  let payload;
   try {
-    payload = jwt.verify(
-      token,
-      import.meta.env.JSONWEBTOKEN_SECRET!
-    ) as jwt.JwtPayload;
+    payload = verify(token, import.meta.env.JSONWEBTOKEN_SECRET!);
   } catch (err) {
-    if (err instanceof jwt.TokenExpiredError) {
+    if (err instanceof TokenExpiredError) {
       throw new Error("Something went wrong: 3");
-    } else if (err instanceof jwt.JsonWebTokenError) {
+    } else if (err instanceof JsonWebTokenError) {
       throw new Error("Something went wrong: 4");
     } else {
       throw new Error("Something went wrong: 5");
     }
   }
   if (!payload) throw new Error("Something went wrong: 6");
-  const email = payload["email"];
+  const email = (payload as { email?: string })["email"];
+  console.log({ email, payload });
   if (!email) throw new Error("Something went wrong: 7");
   return email;
 };

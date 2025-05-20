@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
-import * as jwt from "jsonwebtoken";
+// import { sign } from "jsonwebtoken";
+import pkg from "jsonwebtoken";
+const { sign } = pkg;
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   const url = new URL(request.url);
@@ -18,13 +20,10 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 
   if (!import.meta.env.JSONWEBTOKEN_SECRET)
     throw new Error("Something went wrong: 12");
-  const token = jwt.sign(
-    { name, email },
-    import.meta.env.JSONWEBTOKEN_SECRET!,
-    {
-      expiresIn: "1d",
-    }
-  );
+  console.log({ name, email });
+  const token = sign({ name, email }, import.meta.env.JSONWEBTOKEN_SECRET!, {
+    expiresIn: "1d",
+  });
 
   const headers = new Headers();
 
@@ -52,25 +51,20 @@ async function exchangeCodeForTokens(code: string): Promise<{
   data.append("code", code);
   data.append("client_id", import.meta.env.GOOGLE_CLIENT_ID!);
   data.append("client_secret", import.meta.env.GOOGLE_CLIENT_SECRET!);
-  data.append(
-    "redirect_uri",
-    `${import.meta.env.BASE_URL}/auth-google-callback`
-  );
+  data.append("redirect_uri", `http"//localhost:4321/auth-google-callback`);
   data.append("grant_type", "authorization_code");
 
-  const response = await fetch(tokenUrl, {
-    method: "POST",
-    body: data,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Something went wrong: 13");
-  }
-
-  return await response.json();
+  const response = await (
+    await fetch(tokenUrl, {
+      method: "POST",
+      body: data,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    })
+  ).json();
+  console.log({ res: await response });
+  return await response;
 }
 
 async function getUserInfo(
@@ -83,9 +77,14 @@ async function getUserInfo(
     },
   });
 
-  if (!response.ok) {
-    throw new Error("Something went wrong: 14");
-  }
+  const userInfoResponse = await fetch(
+    "https://www.googleapis.com/oauth2/v2/userinfo",
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
 
-  return await response.json();
+  return await userInfoResponse.json();
 }
