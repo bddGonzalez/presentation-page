@@ -1,0 +1,41 @@
+---
+import { PostContent } from "astro:db";
+import { Post } from "astro:db";
+import { db } from "astro:db";
+const origin = Astro.request.headers.get("Referer");
+if (!origin) throw new Error("Something went wrong!");
+const isEnglish = !origin.includes("/es/");
+const posts = await db.select().from(Post);
+const postContents = await db
+  .select({
+    id: PostContent.id,
+    postId: PostContent.postId,
+    lang: PostContent.lang,
+    title: PostContent.title,
+    description: PostContent.description,
+  })
+  .from(PostContent);
+---
+
+<section id="posts-list">
+  {
+    posts.map((post) => {
+      const postContent = isEnglish
+        ? postContents.find(({ lang }) => lang === "en")
+        : postContents.find(({ postId }) => post.id === postId);
+
+      if (!postContent) throw new Error("Something went wrong");
+
+      return (
+        <article class="post-item">
+          <h2>
+            <a href={"/posts/" + post.slug}>
+              {postContent.title} - {post.createdAt.toLocaleDateString("es-ar")}
+            </a>
+          </h2>
+          <p>{postContent.description}</p>
+        </article>
+      );
+    })
+  }
+</section>

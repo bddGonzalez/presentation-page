@@ -1,0 +1,63 @@
+---
+import { db, Comment, CommentReply, and } from "astro:db";
+import RootLayout from "../../layouts/RootLayout.astro";
+import "../../styles/globals.css";
+import "../../styles/posts.css";
+import "prismjs/themes/prism-tomorrow.css";
+import { PostContent } from "astro:db";
+import { eq } from "astro:db";
+import { Post } from "astro:db";
+import CommentSection from "../../components/posts/CommentSection";
+const origin = Astro.request.headers.get("Referer");
+const { postSlug } = Astro.params;
+if (!postSlug) throw new Error("Something went wrong");
+const isEnglish = !origin?.includes("/es/");
+const post = (await db.select().from(Post).where(eq(Post.slug, postSlug)))[0];
+const postContent = (
+  await db
+    .select()
+    .from(PostContent)
+    .where(
+      isEnglish
+        ? and(eq(PostContent.lang, "en"), eq(PostContent.postId, post.id))
+        : eq(PostContent.postId, post.id)
+    )
+)[0];
+const rawComments = await db
+  .select()
+  .from(Comment)
+  .where(eq(Comment.postId, post.id))
+  .leftJoin(CommentReply, eq(Comment.id, CommentReply.comment));
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{postContent.title} | Full-Stack Developer</title>
+  </head>
+  <body>
+    <script is:inline src="https://accounts.google.com/gsi/client" async defer
+    ></script>
+    <script>
+      import prism from "prismjs";
+      import "prismjs/components/prism-typescript";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        prism.highlightAll();
+      });
+    </script>
+    <RootLayout>
+      <main>
+        <div class="post-container">
+          <h1>{postContent.title}</h1>
+          <p>{post.createdAt.toLocaleDateString("es-ar")}</p>
+          <Fragment set:html={postContent.content} />
+          <CommentSection postId={post.id} client:only />
+        </div>
+      </main>
+    </RootLayout>
+  </body>
+</html>
