@@ -7,8 +7,8 @@ const { orientation = "horizontal", style } = Astro.props;
 
 const separatorStyle =
   (orientation === "horizontal"
-    ? "border-bottom: 1px solid black;width:100%;"
-    : "border-left:1px solid black;height:100%;") + style;
+    ? "border-bottom: 1px solid var(--color);width:100%;"
+    : "border-left:1px solid var(--color);height:100%;") + style;
 ---
 
 <div style={separatorStyle}></div>

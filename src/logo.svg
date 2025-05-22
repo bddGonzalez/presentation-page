@@ -9,10 +9,4 @@
   >
     BG
   </text>
-  <style>
-        text { fill: #161625; }
-        @media (prefers-color-scheme: dark) {
-            text { fill: #86aaf9; }
-        }
-    </style>
 </svg>

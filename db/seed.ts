@@ -1,10 +1,1275 @@
-import { db, Comment, CommentReply, Post, PostContent } from "astro:db";
+import { db, Post, PostContent } from "astro:db";
 
-const postcontentstr = String.raw`<p>
+const esPostContent = String.raw`<p>
+            Esto está fuertemente inspirado por la <a
+              href="https://thomasvds.com/schema-based-multitenancy-with-nest-js-type-orm-and-postgres-sql/"
+              target="_blank"
+              rel="noopener noreferrer">perspectiva de Thomas Vanderstraeten</a
+            >
+          </p>
+          <section id="table-of-contents">
+            <h1>Tabla de contenidos</h1>
+            <ul class="sub-list">
+              <li>
+                <a href="#introduction">Introducción</a>
+              </li>
+              <li>
+                <a href="#inspired-by">Inspirado por</a>
+              </li>
+              <li>
+                <a href="#shift-rationale">Justificación</a>
+              </li>
+              <li>
+                <a href="#implementation-details">Detalles de implementación</a>
+              </li>
+              <li>
+                <a href="#code-snippets">Fragmentos de código</a>
+                <ul class="sub-list">
+                  <li><a href="#middleware">Middleware</a></li>
+                  <li><a href="#repositories">Repositorios</a></li>
+                  <li>
+                    <a href="#tenant-connections-management"
+                      >Gestión de conexiones de tenants</a
+                    >
+                  </li>
+                  <li>
+                    <a href="#tenant-database-creation"
+                      >Creación de base de datos de tenants</a
+                    >
+                  </li>
+                  <li>
+                    <a href="#tenant-database-migration"
+                      >Migración de base de datos de tenants</a
+                    >
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <a href="#closing-thoughts">Reflexiones finales</a>
+              </li>
+              <li>
+                <a href="#comment-section">Comentarios</a>
+              </li>
+            </ul>
+          </section>
+          <div class="post-content">
+            <div id="introduction">
+            <h1>Introducción</h1>
+            <p>
+              Al construir nuestra plataforma SaaS de gestión de la construcción, enfrentamos
+              el desafío crítico de implementar la multitenencia para garantizar
+              el aislamiento de datos y una experiencia personalizada para cada cliente.
+              Inicialmente inspirados por la excelente publicación de blog de Thomas Vanderstraeten
+              sobre multitenencia basada en esquemas con NestJS, TypeORM y
+              PostgreSQL, nuestro enfoque evolucionó significativamente para aprovechar una
+              arquitectura de base de datos por tenant. Esta publicación describe nuestro recorrido
+              y el fundamento detrás de este cambio, detallando cómo
+              implementamos un aislamiento de tenants robusto utilizando instancias de base de datos
+              dedicadas.
+            </p>
+          </div>
+            <div id="inspired-by">
+              <h1>Inspirado por</h1>
+              <p>
+                El artículo de Thomas Vanderstraeten proporcionó una valiosa base
+                para comprender los principios fundamentales de la multitenencia dentro del
+                ecosistema de NestJS. Su exploración del aislamiento basado en esquemas
+                destacó consideraciones clave como la identificación de tenants y
+                la gestión de conexiones. Si bien inicialmente consideramos este
+                enfoque, nuestros requisitos específicos para un aislamiento mejorado y
+                escalabilidad nos llevaron por un camino diferente. Los conceptos
+                fundamentales y las consideraciones discutidas en su publicación no se
+                repetirán aquí, ya que nos centraremos en nuestra implementación distintiva.
+              </p>
+              <p>
+                También es importante reconocer la significativa influencia del
+                perspicaz libro de Tod Golding, "Building Multi-tenant SaaS
+                Architectures" en nuestras decisiones arquitectónicas. En particular,
+                la separación de responsabilidades y los conceptos de un plano de control
+                y un plano de aplicación, que elaboraremos más adelante, fueron
+                fuertemente inspirados por el valioso marco proporcionado en su libro
+                para construir sistemas multitenant robustos.
+              </p>
+            </div>
+            <div id="shift-rationale">
+              <h1>Justificación</h1>
+              <p>
+                Nuestra decisión de pasar de esquemas compartidos a instancias de
+                base de datos individuales para cada tenant fue impulsada por
+                varios factores:
+              </p>
+              <ul>
+                <li>
+                  <p>
+                    <strong>Aislamiento de datos mejorado:</strong> La separación
+                    completa a nivel de base de datos proporciona la garantía más
+                    sólida de privacidad y seguridad de los datos para cada tenant.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    <strong>Escalabilidad y rendimiento: </strong>
+                    El aislamiento de los tenants en sus propias bases de datos puede
+                    conducir a un mejor rendimiento y escalabilidad, ya que las
+                    operaciones de la base de datos se limitan a los datos de un
+                    solo tenant.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    <strong> Personalización y flexibilidad: </strong>
+                    Las bases de datos individuales permiten una mayor flexibilidad
+                    en términos de configuraciones de base de datos específicas
+                    para cada tenant, extensiones e incluso,
+                    potencialmente, diferentes versiones de base de datos en el futuro.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    <strong> Copias de seguridad y restauraciones simplificadas: </strong>
+                    La gestión de copias de seguridad y restauraciones se vuelve más
+                    simple y granular cuando cada tenant tiene su propia base de datos.
+                  </p>
+                </li>
+              </ul>
+            </div>
+            <div id="implementation-details">
+              <h2>
+                Cómo implementamos una solución de base de datos por tenant en nuestra aplicación NestJS
+              </h2>
+              <ul>
+                <li>
+                  <p>
+                    <strong>Identificación de tenants:</strong> Siguiendo los principios
+                    descritos en la publicación de Vanderstraeten, implementamos un
+                    enfoque basado en subdominios para la identificación de tenants.
+                    En lugar de un identificador asignado por el sistema, cada tenant
+                    elige un nombre único que luego se convierte en
+                    su subdominio dedicado (por ejemplo, nombredetenantelegido.mysaas.com).
+                    Este identificador elegido se analiza a partir del origen de la solicitud,
+                    sirviendo como clave para establecer una conexión de base de datos
+                    dedicada para ese tenant específico. Es crucial enfatizar que
+                    estos nombres de subdominio elegidos por el tenant se someten a una
+                    rigurosa sanitización para garantizar la seguridad
+                    y prevenir cualquier vulnerabilidad potencial.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    <strong>Conexiones dinámicas a la base de datos:</strong> Para esto, implementamos
+                    un sistema para establecer y administrar conexiones a instancias de
+                    base de datos de PostgreSQL separadas en tiempo de ejecución.
+                  </p>
+                  <ul class="sub-list">
+                    <li>
+                      <p>
+                        Para manejar las conexiones a bases de datos de tenants individuales,
+                        empleamos un enfoque híbrido para almacenar los detalles de conexión.
+                        Mientras que ciertos parámetros fundamentales como el host de la base de datos
+                        se almacenaron en nuestra base de datos central, las
+                        configuraciones de conexión necesarias restantes se gestionaron
+                        a través de un objeto de configuración centralizado,
+                        aprovechando las variables de entorno.
+                      </p>
+                    </li>
+                    <li>
+                      <p>
+                        El proceso de creación y recuperación de conexiones a bases de datos
+                        específicas para tenants se orquestó utilizando un patrón
+                        singleton. Esto aseguró que las conexiones a la base de datos se
+                        recuperaran de forma perezosa: ya sea accediendo a una conexión
+                        existente almacenada en un Map interno dentro de la instancia
+                        singleton o estableciendo dinámicamente una nueva conexión
+                        cuando no existía una. Las conexiones recién creadas se
+                        almacenaban luego en un Map para su posterior reutilización. Todo este
+                        proceso fue gestionado por un middleware. Este
+                        middleware desempeñó un papel crucial en la intercepción de cada
+                        solicitud, la identificación del tenant y la vinculación de la
+                        DataSource correspondiente al objeto de solicitud. Esta
+                        DataSource adjunta estaba entonces fácilmente disponible para la
+                        creación dinámica de repositorios con alcance de solicitud,
+                        asegurando que todas las operaciones de acceso a datos se
+                        dirigieran a la base de datos del tenant correcto.
+                      </p>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <p>
+                    <strong>Creación de base de datos de tenants: </strong> Para manejar la creación
+                    de nuevas bases de datos de tenants, implementamos un proceso asíncrono
+                    aprovechando el módulo Queues de NestJS (@nestjs/bullmq, BullMQ). Al
+                    finalizar el proceso de incorporación de un nuevo tenant, se agregaba un trabajo
+                    a la cola para iniciar la configuración de la base de datos. Un consumidor o
+                    procesador dedicado recuperaba luego toda la información necesaria del tenant
+                    y establecía una conexión temporal a la base de datos predeterminada "postgres". Esta
+                    conexión se utilizó para ejecutar una consulta de creación de base de datos para el
+                    nuevo tenant. Posteriormente, el procesador ejecutaría todas las migraciones
+                    de base de datos necesarias, migraría cualquier dato temporal relevante y,
+                    finalmente, actualizaría nuestra tabla de tenants con los nuevos detalles de conexión
+                    de la base de datos. Este enfoque asíncrono aseguró que el proceso de creación de la base de datos
+                    no bloqueara el flujo de incorporación, proporcionando una experiencia de usuario más fluida.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    <strong>Migración de base de datos de tenants: </strong> Para gestionar las
+                    actualizaciones del esquema de la base de datos en todos los tenants, desarrollamos un script
+                    TypeScript dedicado. Este script, ejecutado usando tsx, inició el proceso
+                    de migración estableciendo primero una nueva conexión DataSource a nuestra
+                    tabla de tenants. Luego consultó esta tabla para recuperar una lista de
+                    todos los tenants activos. Para cada tenant identificado, el script
+                    construyó dinámicamente una nueva conexión DataSource usando los parámetros
+                    específicos del tenant almacenados en el registro y nuestras variables de entorno.
+                    Una vez establecidas estas conexiones específicas del tenant, el script
+                    ejecutó las migraciones de base de datos necesarias para cada tenant
+                    individual, asegurando que su esquema estuviera actualizado. Además, este
+                    script fue diseñado para ser flexible, aceptando argumentos numerados
+                    a través de la interfaz de línea de comandos (CLI) para permitir ejecuciones de
+                    migración dirigidas a tenants específicos, proporcionando un control granular
+                    sobre el proceso de actualización.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    <strong>Capa de acceso a datos:</strong> Nuestra Capa de Acceso a Datos (DAL)
+                    fue diseñada con un fuerte énfasis en la desvinculación de la lógica central de
+                    nuestra aplicación de las complejidades de la multitenencia. Para lograr esto,
+                    nuestros repositorios y servicios permanecen ajenos al contexto de tenant
+                    subyacente. Esta separación de preocupaciones se facilitó mediante
+                    un uso estratégico de middleware y un servicio dedicado de gestión
+                    de conexiones. Esto se logró a través de: Middleware para la inyección de DataSource,
+                    servicio de gestión de conexiones Singleton, servicios y repositorios ajenos
+                    al tenant.
+                  </p>
+                  <p>Este patrón de diseño proporcionó varios beneficios clave:</p>
+                  <ul class="sub-list">
+                    <li>
+                      <p>
+                        <strong> Código limpio: </strong>
+                        Nuestra lógica de negocio central se mantuvo enfocada en sus responsabilidades
+                        principales, sin estar abarrotada de código específico de la tenencia.
+                      </p>
+                    </li>
+                    <li>
+                      <p>
+                        <strong> Mantenibilidad: </strong>
+                        Los cambios en la implementación de la multitenencia (por ejemplo, cómo se
+                        identifican los tenants o cómo se gestionan las conexiones) podrían
+                        realizarse dentro del middleware y el servicio de gestión de conexiones
+                        sin requerir modificaciones en los repositorios o servicios.
+                      </p>
+                    </li>
+                    <li>
+                      <p>
+                        <strong> Testabilidad: </strong>
+                        Probar nuestros servicios y repositorios se volvió más simple, ya que
+                        podíamos simular fácilmente la DataSource inyectada sin necesidad de
+                        simular todo el contexto de tenencia.
+                      </p>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            <div id="code-snippets">
+             <h2>Ejemplos de código</h2>
+              <div id="#middleware" class="code-snippet">
+                <p>
+                  Para iniciar el proceso de conexión dinámica de tenants,
+                  implementamos un middleware de NestJS. Este middleware, como
+                  se ilustra en el fragmento de código a continuación, desempeña un papel
+                  crucial en la identificación del tenant basándose en la solicitud
+                  entrante y en la disponibilidad de la conexión a la base de datos
+                  correspondiente para el acceso posterior a los datos. Aunque el código
+                  también incluye la vinculación de una clave
+                  <code>ENTITY_MANAGER_KEY</code> para la gestión transaccional, aquí
+                  nos centraremos en la lógica central de la conexión de tenants.
+                </p>
+                <pre><code class="language-typescript">import { Injectable, NestMiddleware } from '@nestjs/common'
+import { Request, Response, NextFunction } from 'express'
+import { TenantConnectionsService } from '@/application/modules/common/tenant-connections.service'
+import { ENTITY_MANAGER_KEY } from './tenant-transactions.interceptor'
+
+export const TENANT_QUERY_RUNNER = 'tenant-query-runner'
+
+@Injectable()
+export class TenantConnectionMiddleware implements NestMiddleware {
+  constructor(private readonly tenantConnectionsService: TenantConnectionsService) {}
+  async use(req: Request, res: Response, next: NextFunction) {
+    const protocol = process.env.PROTOCOL
+    const host = process.env.HOST
+
+    // Aquí solo deberias escapar el punto literal; tuve algunos problemas al intentar mostrar este código.
+
+    const originPartsToRemove: RegExp = new RegExp(String.raw\`\${protocol}|$\{host}|\\.\`, 'g')
+    const tenantIdentifier: string = req.headers.origin.replaceAll(originPartsToRemove, '')
+
+    const tenantQueryRunner = (
+      await this.tenantConnectionsService.get(tenantIdentifier)
+    ).createQueryRunner()
+
+    req[TENANT_QUERY_RUNNER] = tenantQueryRunner
+
+    req[ENTITY_MANAGER_KEY] = tenantQueryRunner.manager
+
+    next()
+  }
+}</code></pre>
+                                 <p>
+                    Profundicemos en la funcionalidad de este middleware.
+                    Aprovechando la inyección de dependencias de NestJS, inyectamos el
+                    <code
+                      >TenantConnectionsService</code
+                    >, que es responsable de gestionar y recuperar
+                    las conexiones a bases de datos específicas de cada tenant. Dentro del método
+                    <code>use</code>, reside la lógica central. Primero, para mayor claridad y
+                    conveniencia, asignamos las variables de entorno <code>PROTOCOL</code> y
+                    <code>HOST</code> a constantes locales. A continuación, definimos la Expresión
+                    Regular <code>originPartsToRemove</code>. Esta expresión se construye para
+                    coincidir con el protocolo (por ejemplo, <code>http://</code> o
+                    <code>https://</code>), el host principal de nuestra aplicación y cualquier
+                    punto literal. Al reemplazar estas partes coincidentes del encabezado
+                    <code>origin</code> de la solicitud, aislamos eficazmente el
+                    <code>tenantIdentifier</code>, que, como se estableció anteriormente,
+                    corresponde al subdominio único elegido por el tenant.
+                  </p>
+                  <p>
+                    Con el <code>tenantIdentifier</code> extraído, utilizamos el método
+                    <code>get</code> del <code>TenantConnectionsService</code> para recuperar la
+                    DataSource apropiada para ese tenant específico. Posteriormente, creamos un
+                    QueryRunner a partir de esta DataSource. Este
+                    <code>tenantQueryRunner</code> se adjunta al objeto de solicitud usando la
+                    clave <code>TENANT_QUERY_RUNNER</code>, haciéndolo disponible para operaciones
+                    posteriores. Además, también adjuntamos el <code>manager</code> (el
+                    EntityManager) del QueryRunner a la solicitud, que se utiliza para recuperar
+                    repositorios de entidades dentro del ciclo de vida de la solicitud.
+                  </p>
+                  </div>
+              <div id="#repositories" class="code-snippet">
+                <h3>Repositorios</h3>
+                <p>
+                  A continuación, examinemos cómo el <code>EntityManager</code> específico del
+                  tenant, adjunto a la solicitud por nuestro middleware, se utiliza dentro
+                  de nuestra capa de acceso a datos. Para optimizar la creación de
+                  repositorios y evitar código repetitivo en nuestros repositorios
+                  específicos de entidades, implementamos una clase base
+                  <code>BaseRepository</code> extendible. Esta clase base encapsula la lógica
+                  para recuperar la instancia <code>Repository</code> de TypeORM apropiada
+                  utilizando el <code>EntityManager</code> de la solicitud. Aquí está la
+                  implementación de nuestro <code>BaseRepository</code>:
+                </p>
+                <pre><code class="language-typescript">
+import { EntityManager, EntitySchema, ObjectLiteral, Repository } from 'typeorm';
+import { ENTITY_MANAGER_KEY } from './tenant-transactions.interceptor';
+import { Request } from 'express';
+
+export class BaseRepository {
+  constructor(private request: Request & { [ENTITY_MANAGER_KEY]: EntityManager }) {}
+
+  protected getRepository<T extends ObjectLiteral>(
+    entityCls: EntitySchema
+  ): Repository<T> {
+    const entityManager: EntityManager = this.request[ENTITY_MANAGER_KEY];
+
+    if (!entityManager) {
+      throw new Error('No EntityManager found on the request.');
+    }
+
+    return entityManager.getRepository(entityCls);
+  }
+}
+                </code></pre>
+                <p>
+                  Como se puede observar en el <code>BaseRepository</code>, el constructor
+                  recibe el objeto de solicitud, el cual hemos aumentado para incluir el
+                  <code>EntityManager</code> bajo la clave <code>ENTITY_MANAGER_KEY</code>. El
+                  método protegido <code>getRepository</code> accede entonces a este
+                  <code>EntityManager</code> desde la solicitud y lo utiliza para recuperar el
+                  <code>Repository</code> de TypeORM para un esquema de entidad dado. Esto
+                  asegura que cada instancia de repositorio opere dentro del contexto de la
+                  conexión a la base de datos del tenant actual.
+                </p>
+                <p>
+                  Los repositorios concretos dentro de nuestra aplicación extienden este
+                  <code>BaseRepository</code> y, al aprovechar el método
+                  <code>getRepository</code>, obtienen acceso al repositorio de entidad con el
+                  ámbito correcto. Aquí hay un ejemplo de cómo se implementaría un
+                  <code>ExampleRepository</code>:
+                </p>
+                <pre><code class="language-typescript">
+import { Injectable, Scope, Repository } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { EntityManager } from 'typeorm';
+import { BaseRepository } from '../base.repository';
+import { ExampleEntity } from './example.entity';
+import { ExampleEntitySchema } from './example.schema';
+import { ENTITY_MANAGER_KEY } from '../tenant-transactions.interceptor';
+import { Request } from 'express';
+
+@Injectable({ scope: Scope.REQUEST })
+export class ExampleRepository extends BaseRepository {
+  private repository: Repository<ExampleEntity>;
+
+  constructor(@Inject(REQUEST) private readonly req: Request & { [ENTITY_MANAGER_KEY]: EntityManager }) {
+    super(req);
+    this.repository = this.getRepository(ExampleEntitySchema);
+  }
+
+  // Metodos del repositorio (e.g., findOne, find, save, etc.)
+
+}
+                </code></pre>
+                <p>
+                  En este <code>ExampleRepository</code>, primero definimos su alcance como
+                  <code>REQUEST</code>, asegurando que se cree una nueva instancia para cada
+                  solicitud entrante. Al extender <code>BaseRepository</code> y llamar al método
+                  <code>getRepository</code> dentro de su constructor, obtenemos el repositorio
+                  específico del tenant para la <code>ExampleEntity</code>. Esto abstrae
+                  elegantemente la gestión de la tenencia subyacente, permitiendo que nuestros
+                  repositorios se centren únicamente en las preocupaciones de acceso a datos
+                  dentro del contexto del tenant correcto. Aunque el término "repositorio" se
+                  menciona con frecuencia, este patrón demostró ser la solución más sencilla y
+                  fácil de mantener para garantizar un aislamiento de datos adecuado en nuestra
+                  arquitectura multi-tenant.
+                </p>
+              </div>
+              <div id="#tenant-connections-management" class="code-snippet">
+                <h3>Gestión de conexiones de tenants</h3>
+                <p>
+                  Para centralizar la gestión y recuperación de conexiones a bases de datos
+                  específicas de cada tenant, implementamos un
+                  <code>TenantConnectionsService</code> dedicado. Dada la naturaleza singleton
+                  de los servicios de NestJS dentro de su ámbito definido, este enfoque asegura
+                  que la lógica de gestión de conexiones se maneje de manera consistente y
+                  eficiente en toda la aplicación. Este diseño simplifica futuras
+                  modificaciones o mejoras en nuestro proceso de recuperación de conexiones.
+                  Examinemos la implementación:
+                </p>
+                <pre><code class="language-typescript">
+import { Injectable } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { join } from 'path';
+
+import { connectionSource as controlDataSource } from '@/config/db/control-orm.config';
+import { TenantSchema } from '@/control/modules/tenancy/tenants/schemas/tenant.schema';
+import { Tenant } from '@/control/modules/tenancy/tenants/entities/tenant.entity';
+import { tenantOrmConfig } from '@/config/db/application-orm.config';
+
+@Injectable()
+export class TenantConnectionsService {
+  readonly #tenantConnections: Map<string, DataSource> = new Map();
+
+  constructor() {}
+
+  #generateTenantDbName(tenant: Tenant) {
+    return "tenant_" + tenant.name
+  }
+
+  async #initializeDataSource(dataSource: DataSource): Promise<DataSource> {
+    if (!dataSource.isInitialized) {
+      await dataSource.initialize();
+    }
+    return dataSource;
+  }
+
+  async get(name: string): Promise<DataSource> {
+    const cachedDataSource = this.#tenantConnections.get(name);
+    if (cachedDataSource) {
+      return await this.#initializeDataSource(cachedDataSource);
+    }
+
+    if (!controlDataSource.isInitialized) {
+      await controlDataSource.initialize();
+    }
+
+    const tenant = await controlDataSource.getRepository(TenantSchema).findOneBy({ name });
+
+    if (!tenant) throw new Error('Could not find tenant ' + name)
+
+    const dataSourceOptions: PostgresConnectionOptions = {
+      ...tenantOrmConfig,
+      host: tenant.databaseHost,
+      database: this.#generateTenantDbName(tenant),
+      entities: [join(__dirname, '../../**/*.schema{.js,.ts}')],
+    };
+
+    const newDataSource = new DataSource(dataSourceOptions);
+    this.#tenantConnections.set(tenant.name, newDataSource);
+    return await this.#initializeDataSource(newDataSource);
+  }
+}
+                </code></pre>
+                <p>
+                  Este <code>TenantConnectionsService</code> mantiene un <code>Map</code> llamado
+                  <code>#tenantConnections</code>, que sirve como caché para almacenar instancias
+                  <code>DataSource</code> específicas de cada tenant, indexadas por el
+                  identificador único del tenant (<code>name</code>). El método
+                  <code>get</code> es la interfaz principal para recuperar una
+                  <code>DataSource</code> para un tenant dado. Primero verifica si existe una
+                  <code>DataSource</code> para el <code>name</code> del tenant solicitado en
+                  la caché. Si se encuentra, devuelve la instancia (potencialmente ya
+                  inicializada) después de asegurarse de que esté inicializada.
+                </p>
+                <p>
+                  Si no se encuentra una <code>DataSource</code> para el tenant en la caché,
+                  el servicio interactúa con nuestra base de datos "de control" central
+                  (utilizando <code>controlDataSource</code>) para buscar la entidad
+                  <code>Tenant</code> basándose en el <code>name</code> proporcionado.
+                  Intencionadamente, solo almacenamos el host de la base de datos del tenant
+                  en esta base de datos central, optando por un enfoque más simplificado,
+                  aunque otros parámetros de conexión podrían almacenarse aquí para una mayor
+                  flexibilidad si fuera necesario. El nombre real de la base de datos del
+                  tenant se genera dinámicamente utilizando el método
+                  <code>#generateTenantDbName</code>.
+                </p>
+                <p>
+                  Una vez recuperada la entidad <code>Tenant</code>, construimos las
+                  <code>PostgresConnectionOptions</code> para la base de datos del tenant
+                  fusionando nuestra <code>tenantOrmConfig</code> base con el
+                  <code>databaseHost</code> específico del tenant y el nombre de la base de
+                  datos generado dinámicamente. Es importante destacar que la ruta de las
+                  <code>entities</code> se configura para que apunte a los archivos de esquema
+                  compilados dentro del plano de la aplicación, asegurando que TypeORM pueda
+                  mapear correctamente las entidades a la base de datos del tenant.
+                  Finalmente, se crea una nueva instancia de <code>DataSource</code> utilizando
+                  estas opciones, se almacena en el mapa
+                  <code>#tenantConnections</code> para uso futuro, se inicializa y luego se
+                  devuelve. El método <code>#initializeDataSource</code> asegura que la
+                  <code>DataSource</code> se inicialice solo una vez, incluso si el método
+                  <code>get</code> se llama varias veces para el mismo tenant.
+                </p>
+              </div>
+              <div id="#tenant-database-creation" class="code-snippet">
+                <h3>Creación de bases de datos de tenants</h3>
+                <p>
+                  Abordaremos la explicación de la creación de bases de datos de tenants
+                  de manera diferente, centrándonos en la naturaleza asíncrona del
+                  proceso. Como se destaca en "Building Multi-tenant SaaS Architectures" de Tod
+                  Golding, una experiencia de incorporación fluida y fácil de usar es primordial.
+                  Con esto en mente, nuestro flujo de incorporación en el plano de control
+                  permite a los tenants proporcionar información de forma incremental e incluso
+                  salir y regresar más tarde. Durante esta fase, se crea un registro de tenant
+                  en nuestra base de datos de control, pero no se asocia inmediatamente con una
+                  base de datos de aplicación dedicada o un subdominio. Estos se aprovisionan
+                  más tarde a través de un proceso de actualización. Si bien esto introduce un
+                  ligero retraso entre el registro inicial y la activación completa del tenant,
+                  subraya la flexibilidad de nuestro sistema, permitiendo que la creación de la
+                  base de datos ocurra tan pronto como la información necesaria esté disponible
+                  o después de un proceso de incorporación más prolongado.
+                </p>
+                <p>
+                  Así que, examinemos la configuración inicial del consumidor de la cola
+                  responsable de este proceso:
+                </p>
+                <pre><code class="language-typescript">
+import { Injectable, Logger } from '@nestjs/common'
+import { Processor, WorkerHost } from '@nestjs/bullmq'
+import { DataSource } from 'typeorm'
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions'
+
+import { TENANT_SETUP_KEY } from './constants'
+import { TenantsRepository } from '@/control/modules/tenancy/tenants/repositories/tenants.repository'
+import { TempUsersRepository } from '@/control/modules/onboarding/repositories/temp-users.repository'
+import { EmailSenderService } from '@/application/modules/common/email/email-sender.service'
+import { TenantSetupGateway } from '@/application/gateways/tenant-setup.gateway'
+
+@Processor(TENANT_SETUP_KEY)
+@Injectable()
+export class TenantSetup extends WorkerHost {
+  #dataSourceOpts: PostgresConnectionOptions | null = null // Explicado despues
+
+  constructor(
+    private readonly tenantsRepository: TenantsRepository,
+
+    // Este repositorio de "TempUsers" maneja los usuarios creados durante el proceso de onboarding.
+
+    // Nuestro proceso de migración transferirá estos usuarios a la base de datos dedicada del tenant.
+
+    private readonly tempUsersRepository: TempUsersRepository,
+    private readonly logger: Logger = new Logger(TenantSetup.name),
+    private readonly emailSenderService: EmailSenderService,
+    private readonly tenantSetupGateway: TenantSetupGateway
+  ) {
+    super()
+  }
+
+  // ...
+
+}
+                </code></pre>
+                <p>
+                  Aquí, definimos <code>TenantSetup</code> como un <a
+                    href="https://docs.nestjs.com/techniques/queues#consumers"
+                    target="_blank"
+                    rel="noopener noreferrer">Consumidor</a
+                  > de NestJS, decorado con <code>@Processor(TENANT_SETUP_KEY)</code>. Este
+                  decorador instruye a BullMQ a escuchar trabajos con el identificador
+                  <code>TENANT_SETUP_KEY</code>. El constructor de este consumidor inyecta varias
+                  dependencias que se utilizarán durante el proceso de creación de la base de
+                  datos del tenant. En particular, estas incluyen repositorios para acceder a
+                  los datos de tenants y usuarios temporales en el plano de control, un logger
+                  para obtener información operativa, un <code>EmailSenderService</code> para
+                  posibles notificaciones y un <code>TenantSetupGateway</code>. Si bien el
+                  <code>Logger</code>, <code>EmailSenderService</code> y
+                  <code>TenantSetupGateway</code> son específicos de nuestra implementación
+                  para un registro mejorado y una experiencia de incorporación fluida, la lógica
+                  central para la creación de la base de datos gira en torno a las interacciones
+                  del repositorio. La propiedad privada <code>#dataSourceOpts</code>, que
+                  explicaremos a continuación, contendrá la configuración para la conexión a la
+                  base de datos del nuevo tenant.
+                </p>
+                <h4>Núcleo</h4>
+                <p>
+                  Como vimos en el consumidor <code>TenantSetup</code>, el método
+                  <code>process</code> orquesta la creación de una nueva base de datos de
+                  tenants. Esto implica varios métodos auxiliares dentro del consumidor.
+                  Comencemos examinando la configuración de las opciones de
+                  <code>DataSource</code> específicas del tenant:
+                </p>
+                <p>
+                  El método <code>#setDataSourceOpts</code> es responsable de construir el objeto
+                  de configuración necesario para conectarse a la base de datos del nuevo
+                  tenant. Este método aprovecha la <code>tenantOrmConfig</code> base, que es
+                  un objeto <code>PostgresConnectionOptions</code> importado de TypeORM. Esta
+                  configuración base suele incluir parámetros de conexión definidos a través de
+                  variables de entorno y configuraciones generales de la aplicación. Luego
+                  sobrescribimos opciones específicas con información específica del tenant
+                  recuperada de nuestra base de datos del plano de control. También utilizamos
+                  el método <code>#generateTenantDbName</code> para establecer un nombre de base
+                  de datos para cada tenant.
+                </p>
+                <pre><code class="language-typescript">
+export class TenantSetup extends WorkerHost {
+
+  // ...
+
+  #generateTenantDbName(tenant: Tenant): string {
+    return "tenant_" + tenant.name
+  }
+
+  async #setDataSourceOpts(tenant: Tenant): Promise<void> {
+    const dataSourceOpts: PostgresConnectionOptions = {
+      ...tenantOrmConfig,
+      host: tenant.databaseHost,
+      database: this.#generateTenantDbName(tenant),
+    }
+    this.#dataSourceOpts = dataSourceOpts
+  }
+
+  // ...
+
+}
+                </code></pre>
+                <p>
+                  Como se ilustra arriba, el método <code>#generateTenantDbName</code>
+                  simplemente concatena un prefijo (<code>tenant_</code>) con el
+                  <code>name</code> único del tenant. El método
+                  <code>#setDataSourceOpts</code> luego combina nuestra
+                  <code>tenantOrmConfig</code> base con el <code>databaseHost</code>
+                  específico del tenant (obtenido del plano de control) y el nombre de la
+                  base de datos generado. Este objeto <code>dataSourceOpts</code> resultante
+                  se asigna entonces a la propiedad privada <code>#dataSourceOpts</code> del
+                  consumidor <code>TenantSetup</code>, haciéndolo disponible para el siguiente
+                  paso de creación de la base de datos.
+                </p>
+
+                <p>
+                  Con las opciones de <code>DataSource</code> específicas del tenant
+                  configuradas en la propiedad <code>#dataSourceOpts</code>, el siguiente paso
+                  crucial en el método <code>process</code> es la creación real de la base de
+                  datos del tenant. Esto se maneja mediante el método auxiliar
+                  <code>#createDb</code>:
+                </p>
+                <pre><code class="language-typescript">
+export class TenantSetup extends WorkerHost {
+
+  // ...
+
+  async #createDb(tenant: Tenant): Promise<DataSource> {
+    if (!this.#dataSourceOpts) throw new Error('Error creating DB')
+
+    await this.#runInDefaultDatabase(
+      "CREATE DATABASE " + this.#generateTenantDbName(tenant) + ";"
+    )
+
+    return new DataSource(this.#dataSourceOpts)
+  }
+
+  // ...
+
+}
+                </code></pre>
+                <p>
+                  El método <code>#createDb</code> primero verifica si las opciones
+                  <code>#dataSourceOpts</code> se han inicializado correctamente. Si no es así,
+                  lanza un error para evitar continuar con la creación de la base de datos.
+                  Asumiendo que las opciones están disponibles, llama al método
+                  <code>#runInDefaultDatabase</code>, pasando un comando SQL para crear la nueva
+                  base de datos del tenant. El nombre de la base de datos se genera
+                  dinámicamente utilizando el método <code>#generateTenantDbName</code>,
+                  asegurando que cada tenant reciba una base de datos única. Después de
+                  ejecutar el comando de creación de la base de datos, se crea una nueva
+                  instancia <code>DataSource</code> de TypeORM utilizando las opciones
+                  <code>#dataSourceOpts</code> configuradas previamente y se devuelve. Esta
+                  <code>DataSource</code> ahora está lista para ser inicializada y utilizada
+                  para ejecutar migraciones e insertar datos específicos del tenant.
+                </p>
+                <p>
+                  <strong>Nota de seguridad importante:</strong> Tenga en cuenta que el nombre
+                  del tenant, si bien se utiliza en la generación del nombre de la base de
+                  datos, se sanea y valida exhaustivamente antes de ser utilizado en cualquier
+                  operación de base de datos, incluido el comando
+                  <code>CREATE DATABASE</code>. Esta medida de seguridad crucial previene
+                  posibles vulnerabilidades de inyección SQL.
+                </p>
+                <p>
+                  Como habrá notado, ciertas operaciones de base de datos, como el comando
+                  <code>CREATE DATABASE</code>, deben ejecutarse contra la base de datos
+                  PostgreSQL predeterminada (normalmente llamada <code>postgres</code>). Para
+                  manejar estas operaciones, tenemos el método auxiliar
+                  <code>#runInDefaultDatabase</code>:
+                </p>
+                <pre><code class="language-typescript">
+export class TenantSetup extends WorkerHost {
+
+  // ...
+
+  async #runInDefaultDatabase(query: string) {
+    try {
+      throw new Error('Error running query in default database: DataSource options not initialized.')
+      const defaultDbConnection = new DataSource({ ...this.#dataSourceOpts, database: 'postgres' })
+      await defaultDbConnection.initialize()
+      await defaultDbConnection.query(query)
+      await defaultDbConnection.destroy()
+    } catch (error) {
+      this.logger.error({
+        timestamp: +new Date(),
+        data: { dataSource: this.#dataSourceOpts },
+        error
+      })
+      throw error
+    }
+    return true
+  }     
+
+  // ...          
+
+}
+                </code></pre>
+                <p>
+                  El método <code>#runInDefaultDatabase</code> toma una consulta SQL pura como
+                  entrada. Dentro de este método, primero realizamos una verificación para
+                  asegurarnos de que las <code>#dataSourceOpts</code> se hayan inicializado.
+                  Luego, creamos una instancia temporal de <code>DataSource</code> de TypeORM.
+                  Crucialmente, tomamos una copia de las <code>#dataSourceOpts</code>
+                  específicas del tenant y sobrescribimos la propiedad
+                  <code>database</code> para conectarnos a la base de datos
+                  <code>postgres</code> predeterminada. Esto nos permite ejecutar comandos SQL
+                  a nivel administrativo que no son específicos de ninguna base de datos de
+                  tenant en particular. Después de inicializar esta conexión temporal,
+                  ejecutamos la <code>query</code> proporcionada. Finalmente, es esencial
+                  cerrar la conexión temporal usando
+                  <code>defaultDbConnection.destroy()</code> para liberar recursos y mantener
+                  la higiene de la conexión. Cualquier error durante este proceso se registra
+                  usando nuestro <code>Logger</code> inyectado, incluyendo una marca de tiempo y
+                  la configuración <code>dataSource</code> actual para fines de depuración, y
+                  luego se vuelve a lanzar para indicar un fallo.
+                </p>
+                <p>
+                  Finalmente, examinemos el método <code>process</code>, que orquesta toda la
+                  creación de la base de datos del tenant y la configuración inicial:
+                </p>
+                <pre><code class="language-typescript">
+export class TenantSetup extends WorkerHost {
+
+  // ...
+
+  async process(job: Job<Tenant>) {
+    const tenant = job.data
+    this.logger.log("Processing tenant setup for:" + tenant.name + "ID:" + tenant.id)
+
+    try {
+      await this.#setDataSourceOpts(tenant)
+
+      const tenantDataSource = await this.#createDb(tenant)
+      await tenantDataSource.initialize()
+      this.logger.log('Initialized database connection for tenant: ' + tenant.name)
+                    
+      const migrations = await tenantDataSource.runMigrations()
+      this.logger.log('Ran ' + migrations.length + ' migrations for tenant:' + tenant.name)
+
+      const tempUsers = await this.tempUsersRepository.findAll({ where: { tenant: { id: tenant.id } } })
+      const usersToMigrate = tempUsers.map(({ id: _id, ...tmpUser }) => tmpUser)
+      const insertResult = await tenantDataSource.manager.insert('Users', usersToMigrate)
+      this.logger.log('Migrated ' + insertResult.identifiers.length + 'temporary users for tenant: ' + tenant.name)
+
+      return usersToMigrate
+    } catch (error) {
+      this.logger.error("Error setting up tenant " + tenant.name + ": " + error.message, error.stack)
+      throw error
+    }
+  }
+
+  // ...
+
+}
+                </code></pre>
+                <h4>Manejo de la configuración exitosa del tenant</h4>
+                <pre><code class="language-typescript">
+export class TenantSetup extends WorkerHost {
+
+  // ...
+
+  @OnWorkerEvent('completed')
+  async onComplete({ data: tenant }: Job<Tenant>, result: Omit<TempUser, 'id'>[]) {
+    tenant.onboardingStatus = OnboardingStates.Complete
+    tenant.appAccess = true
+    await this.tenantsRepository.save(tenant)
+    this.tenantSetupGateway.server.emit('tenant-setup-complete', tenant.name)
+    if (!!process.env.HOST && !!process.env.SCHEMA)
+      result.map(async (tmpUser) => {
+        const mail = generateTenantSetupCompleteEmail(
+          tmpUser.email,
+          process.env.SCHEMA + tenant.name + '.' + process.env.HOST
+        )
+        await this.emailSenderService.send(mail)
+      })
+  }
+      
+  // ...
+  
+}
+                </code></pre>
+                <p>
+                  El método <code>onComplete</code> se activa cuando el método
+                  <code>process</code> finaliza con éxito. Recibe los datos del
+                  <code>Job</code> (la entidad <code>Tenant</code>) y el <code>result</code> (el
+                  array de usuarios temporales migrados). Una vez completado con éxito, este
+                  manejador realiza las siguientes acciones:
+                </p>
+                <ul class="sub-list">
+                  <li>
+                    <p>
+                      Actualiza el <code>onboardingStatus</code> de la entidad
+                      <code>Tenant</code> en la base de datos del plano de control a
+                      <code>OnboardingStates.Complete</code>.
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      Otorga acceso a la aplicación al tenant estableciendo la propiedad
+                      <code>appAccess</code> en <code>true</code>.
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      Guarda estas actualizaciones en la entidad <code>Tenant</code> utilizando
+                      el <code>tenantsRepository</code>.
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      Utiliza el <code>tenantSetupGateway</code> para emitir un evento en tiempo
+                      real (<code>'tenant-setup-complete'</code>) a cualquier cliente conectado,
+                      notificándoles que la configuración del tenant ha finalizado.
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      Si las variables de entorno <code>HOST</code> y <code>SCHEMA</code> están
+                      definidas, itera a través de los usuarios temporales migrados y les envía
+                      a cada uno un correo electrónico de "configuración de tenant completa"
+                      que contiene el subdominio único para su tenant.
+                    </p>
+                  </li>
+                </ul>
+
+                <h4>Manejo de la configuración fallida del tenant</h4>
+                <pre><code class="language-typescript">
+export class TenantSetup extends WorkerHost {
+
+  // ...
+
+  @OnWorkerEvent('failed')
+  async onFail({ data: _tenant }: Job<Tenant>) {
+    this.logger.error({
+      timestamp: +new Date(),
+      error: 'Something failed creating db for "data"',
+      data: { datasource: this.#dataSourceOpts }
+    })
+    const tenant = await this.tenantsRepository.findOneBy({ id: _tenant.id })
+    tenant.onboardingStatus = OnboardingStates.Error
+    await this.tenantsRepository.save(tenant)
+    if (this.#dataSourceOpts.database)
+      await this.#runInDefaultDatabase(
+        "DROP DATABASE " + this.#dataSourceOpts.database + " WITH (FORCE);"
+      )
+  }
+
+  // ...
+
+}
+                </code></pre>
+                <p>
+                  Por el contrario, el método <code>onFail</code> se ejecuta si el método
+                  <code>process</code> encuentra un error y el trabajo falla. Este manejador
+                  toma los datos del <code>Job</code> fallido (la entidad
+                  <code>Tenant</code>) y realiza los siguientes pasos:
+                </p>
+                <ul class="sub-list">
+                  <li>
+                    <p>
+                      Registra un mensaje de error detallado, incluyendo una marca de tiempo,
+                      una descripción de error genérica y las opciones
+                      <code>dataSource</code> que se estaban utilizando en el momento de la
+                      falla.
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      Recupera la entidad <code>Tenant</code> correspondiente de la base de
+                      datos del plano de control utilizando el ID proporcionado.
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      Actualiza el <code>onboardingStatus</code> de la entidad
+                      <code>Tenant</code> a <code>OnboardingStates.Error</code>.
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      Guarda este estado de error en la entidad <code>Tenant</code> utilizando
+                      el <code>tenantsRepository</code>.
+                    </p>
+                  </li>
+                  <li>
+                    <p>
+                      Si las <code>#dataSourceOpts</code> y su propiedad
+                      <code>database</code> están definidas (lo que significa que la creación
+                      de la base de datos podría haber comenzado), intenta eliminar la base de
+                      datos del tenant recién creada (pero potencialmente incompleta o
+                      corrupta) utilizando el método
+                      <code>#runInDefaultDatabase</code> con el comando
+                      <code>DROP DATABASE ... WITH (FORCE)</code>. La opción
+                      <code>WITH (FORCE)</code> se utiliza para asegurar que la base de datos
+                      se elimine incluso si hay conexiones activas.
+                    </p>
+                  </li>
+                </ul>
+
+                <p>
+                  Estos manejadores de eventos son cruciales para mantener la integridad de
+                  nuestro sistema multi-tenant y proporcionar una experiencia de
+                  incorporación clara y receptiva para nuestros tenants. Aseguran que el
+                  plano de control se actualice con el estado de la configuración del
+                  tenant, se notifique a los usuarios al finalizar y las configuraciones
+                  fallidas se registren y limpien adecuadamente.
+                </p>
+              </div>
+
+                <div id="tenant-database-migrations" class="code-snippet">
+                <h3>Migraciones de bases de datos de tenants</h3>
+                <p>
+                  Gestionar los cambios de esquema de la base de datos en nuestra arquitectura
+                  de base de datos por tenant requiere una estrategia para garantizar la
+                  consistencia en todas las bases de datos de los tenants. Para nuestro
+                  plano de aplicación, hemos implementado un script que itera a través de cada
+                  tenant activo y aplica cualquier migración pendiente a su base de datos
+                  individual.
+                </p>
+                <p>
+                  Cuando este script se ejecuta para el módulo <code>application</code>,
+                  realiza los siguientes pasos:
+                </p>
+                <ul class="sub-list">
+                  <li>
+                    <p>Se conecta a la base de datos de control.</p>
+                  </li>
+                  <li>
+                    <p>
+                      Recupera todos los tenants con un <code>onboardingStatus</code> de
+                      <code>Complete</code>.
+                    </p>
+                  </li>
+                  <li>
+                    <p>Para cada tenant activo:</p>
+                    <ul class="sub-list">
+                      <li>
+                        <p>
+                          Construye dinámicamente las opciones de conexión a la base de datos
+                          utilizando el <code>databaseHost</code> específico del tenant y el
+                          nombre de la base de datos generado (<code>tenant_</code> + nombre
+                          del tenant).
+                        </p>
+                      </li>
+                      <li>
+                        <p>
+                          Inicializa una <code>DataSource</code> de TypeORM con estas opciones.
+                        </p>
+                      </li>
+                      <li>
+                        <p>
+                          Ejecuta el comando <code>runMigrations()</code> proporcionado por
+                          TypeORM.
+                        </p>
+                      </li>
+                      <li>
+                        <p>Destruye la conexión <code>DataSource</code>.</p>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <p>
+                      Finalmente, destruye la conexión a la base de datos de control.
+                    </p>
+                  </li>
+                </ul>
+                <pre><code class="language-typescript">
+import { join } from 'path'
+import * as dotenv from 'dotenv'
+dotenv.config({ path: join(__dirname + '../../../.env'), debug: true })
+const readline = require('node:readline')
+const { stdin: input, stdout: output } = require('node:process')
+
+const SUPPORTED_MODULES: string[] = ['control', 'application']
+
+const [_, scriptPath, ...args] = process.argv
+
+const cdIntoScriptsPath = "cd " + scriptPath.slice(0, scriptPath.indexOf('/api/')) + "/api/scripts"
+
+import { OnboardingStates } from '../src/control/modules/tenancy/tenants/entities/tenant.entity'
+import { parseFlags, runCommand } from './helpers'
+import { DataSource } from 'typeorm'
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions'
+import { TenantSchema } from '../src/control/modules/tenancy/tenants/schemas/tenant.schema'
+
+class MigrationActions {
+ private static errorIfModuleNameNotProvidedOrNotSupported = (moduleName?: string) => {
+    if (!moduleName || !SUPPORTED_MODULES.includes(moduleName)) {
+      console.error('Provide a valid module name')
+      if (moduleName) console.info("Unsupported module: " + moduleName)
+      console.info('Available modules are:')
+      SUPPORTED_MODULES.forEach((module) => {
+        console.log("- " + module)
+      })
+      process.exit(1)
+    }
+  }
+
+  private static errorIfMigrationNameNotProvided = (migrationName?: string) => {
+    if (!migrationName) {
+      console.error('Provide a name for the migration')
+      process.exit(1)
+    }
+  }
+  
+  public static showHelp() {
+    console.info(
+      'Usage: npx tsx ./scripts/scriptName migrations [flags] [action] [ generate|create|run|revert ]'
+    )
+    process.exit(0)
+  }
+ 
+ public static async _run([moduleName]: string[] = args) {
+    MigrationActions.errorIfModuleNameNotProvidedOrNotSupported(moduleName)
+    console.log('Running migrations...')
+    const isAppRun = moduleName === 'application'
+    if (isAppRun) {
+      try {
+        const ormconfig = {
+          type: 'postgres' as const,
+          host: process.env.ENV !== 'production' ? 'localhost' : process.env.DB_HOST,
+          port: +process.env.DB_PORT,
+          username: process.env.DB_USERNAME,
+          password: process.env.DB_PASSWORD,
+          database: process.env.DB_NAME,
+          autoLoadEntities: true,
+          synchronize: false,
+          logging: process.env.DB_LOGGING === 'true',
+          subscribers: ['dist/**/**/**/*.subscriber{.ts,.js}']
+        }
+
+        const controlOrmConfig: PostgresConnectionOptions = {
+          ...ormconfig,
+          entities: [
+            join(__dirname, '../src/control/modules/**/schemas/*.schema{.ts,.js}')
+          ],
+          migrations: [join(__dirname, '../src/control/migrations/*{.ts,.js}')]
+        }
+
+        const tenantOrmConfig: PostgresConnectionOptions = {
+          ...ormconfig,
+          entities: [
+            join(__dirname, '../src/application/modules/**/schemas/*.schema{.ts,.js}')
+          ],
+          migrations: [join(__dirname, '../src/application/migrations/*{.ts,.js}')]
+        }
+
+        const controlConnection = new DataSource(controlOrmConfig)
+        await controlConnection.initialize()
+
+        const tenantRepository = controlConnection.getRepository(TenantSchema)
+        const tenantsWithDatabase = await tenantRepository.findBy({
+          onboardingStatus: OnboardingStates.Complete
+        })
+
+        for (const tenant of tenantsWithDatabase) {
+          const dataSourceOpts: PostgresConnectionOptions = {
+            ...tenantOrmConfig,
+            host: process.env.ENV !== 'production' ? 'localhost' : tenant.databaseHost,
+            database: "tenant_" + tenant.name
+          }
+          const tenantDataSource = await new DataSource(dataSourceOpts).initialize()
+          await tenantDataSource.runMigrations()
+          await tenantDataSource.destroy()
+        }
+        await controlConnection.destroy()
+      } catch (err) {
+        console.error(err)
+        throw err
+      }
+    } else {
+
+      // Ejecuta las migraciones de control; hay muchas maneras de hacer esto y depende de cómo alojes tu aplicación.
+
+    }
+  }
+
+  // Ten en cuenta que el mismo principio se utiliza para revertir migraciones; esto se omitirá aquí.
+
+  // Además, las migraciones se generan localmente, pero podrías implementar formas más complejas de hacerlo si lo necesitaras.
+
+  // Tenemos métodos de generación y creación, pero también se omitirán.
+}
+
+const actions = {
+  generate: MigrationActions._generate,
+  g: MigrationActions._generate,
+  create: MigrationActions._create,
+  c: MigrationActions._create,
+  run: MigrationActions._run,
+  revert: MigrationActions._revert
+}
+
+const { flags, newArgs } = parseFlags(args)
+
+const action = newArgs[0]
+newArgs.shift()
+
+actions[action] ? actions[action](newArgs, flags) : MigrationActions.showHelp()
+
+const rl = readline.createInterface({ input, output })
+output.write('\n')
+rl.question('Press Enter to exit \n', () => {
+  rl.close()
+  console.log('\nBye!\n')
+  process.exit(0)
+})
+                </code></pre>
+                <p>
+                  Como se destaca en el código, cuando el módulo
+                  <code>application</code> es el objetivo, establecemos una conexión con la
+                  base de datos de control para obtener todos los tenants completamente
+                  incorporados. Para cada uno de estos tenants, creamos dinámicamente una
+                  <code>DataSource</code> de TypeORM apuntando a su base de datos específica.
+                  Luego ejecutamos el comando <code>runMigrations()</code> para aplicar
+                  cualquier cambio de esquema pendiente. Esto asegura que el esquema de la
+                  base de datos de cada tenant se gestione de forma independiente y esté
+                  actualizado.
+                </p>
+                <p>
+                  Para gestionar las migraciones en el plano de <code>control</code>, tenemos un
+                  proceso separado (cuyos detalles se omiten aquí por brevedad, pero que a menudo
+                  implican el uso de la CLI de TypeORM). El mismo principio de iterar a través
+                  de los tenants y aplicar cambios puede extenderse si su plano de control
+                  también tiene datos específicos de tenants.
+                </p>
+                <p>
+                  Es importante tener en cuenta que la lógica para revertir migraciones y
+                  generar nuevas sigue un patrón similar, pero no se incluye en este ejemplo
+                  simplificado. En nuestro flujo de trabajo, las migraciones se generan
+                  típicamente de forma local durante el desarrollo.
+                </p>
+                <p>
+                  También vale la pena señalar que el método _run puede extenderse fácilmente
+                  para admitir un control más granular sobre qué tenants reciben
+                  migraciones. Por ejemplo, podría agregar indicadores o argumentos al script
+                  para filtrar tenants según su ID, estado u otros criterios, aunque este
+                  nivel de especificidad no era un requisito para nuestra implementación
+                  inicial.
+                </p>
+                <p>
+                  <strong>Configuración del entorno:</strong>
+                </p>
+                <p>
+                  El script de migración se basa en variables de entorno (cargadas usando
+                  <code>dotenv</code>) para establecer conexiones tanto con la base de datos de
+                  control como con las bases de datos de tenants individuales.
+                  <strong>Por lo tanto, es primordial configurar estas variables con precisión
+                    para cada entorno (desarrollo, pruebas, staging, producción).</strong> Esto
+                  incluye detalles como los hosts de la base de datos, puertos, nombres de
+                  usuario y contraseñas. Las configuraciones inconsistentes o incorrectas
+                  pueden resultar en migraciones fallidas o modificaciones de datos no
+                  deseadas.
+                </p>
+                </div>
+                </div>
+                <div id="closing-thoughts">
+                  <h1>Consideraciones finales</h1>
+                  <p>
+                    Implementar una aplicación robusta de Software como Servicio (SaaS) multi-tenant
+                    presenta un conjunto fascinante de desafíos arquitectónicos. Como hemos
+                    explorado en esta publicación, nuestra decisión de adoptar una estrategia de
+                    base de datos por tenant, implementada con la potencia de NestJS, ofrece
+                    ventajas significativas en términos de aislamiento de datos del tenant y el
+                    potencial para una escalabilidad granular. La perfecta integración de TypeORM
+                    con PostgreSQL ha sido fundamental para gestionar nuestras interacciones con
+                    la base de datos y garantizar la integridad de los datos entre tenants. Sin
+                    embargo, es crucial reconocer que este enfoque no está exento de sus
+                    complejidades y compensaciones. La gestión de un mayor número de bases de
+                    datos puede aumentar la sobrecarga operativa, incluyendo copias de seguridad,
+                    mantenimiento y el posible consumo de recursos. La configuración inicial y la
+                    incorporación de tenants requieren una orquestación cuidadosa, como lo
+                    demuestra nuestra implementación asíncrona basada en colas utilizando BullMQ.
+                    Además, las consultas y análisis entre tenants pueden volverse más
+                    intrincados, lo que a menudo requiere mecanismos de consulta distribuidos o
+                    estrategias de agregación de datos. El panorama de la multitenencia es amplio,
+                    con varios patrones y consideraciones que van más allá del alcance de esta
+                    única publicación. Le animamos a ver nuestra implementación como un punto de
+                    partida y a explorar otras estrategias que puedan adaptarse mejor a los
+                    requisitos y la escala específicos de su aplicación. Conceptos como bases de
+                    datos compartidas con identificadores de tenant, aislamiento basado en
+                    esquemas e incluso técnicas más avanzadas como la fragmentación de datos
+                    ofrecen rutas alternativas que vale la pena investigar. Para profundizar en
+                    su comprensión de las tecnologías y conceptos discutidos, le recomendamos
+                    encarecidamente que explore la documentación oficial de
+                    <a href="https://docs.nestjs.com/">NestJS</a> y
+                    <a href="https://orkhan.gitbook.io/typeorm/docs">TypeORM</a>. Además, el libro
+                    de Tod Golding, "Building Multi-tenant SaaS Architectures", proporciona una
+                    base teórica más amplia para la arquitectura SaaS y los patrones de
+                    multitenencia. La
+                    <a
+                      href="https://thomasvds.com/schema-based-multitenancy-with-nest-js-type-orm-and-postgres-sql/"
+                      >publicación del blog de Thomas Vanderstraeten</a
+                    >
+                    ofrece una valiosa perspectiva complementaria sobre el aislamiento de tenants
+                    a nivel de base de datos. Esperamos que esta exploración detallada de nuestra
+                    implementación de base de datos por tenant le haya proporcionado
+                    conocimientos prácticos y una base sólida para su propio viaje multi-tenant.
+                    Gracias por tomarse el tiempo de profundizar en nuestro enfoque.
+                  </p>
+            </div>
+          </div>
+          `;
+
+const enPostContent = String.raw`<p>
             This is heavily inspired by <a
               href="https://thomasvds.com/schema-based-multitenancy-with-nest-js-type-orm-and-postgres-sql/"
               target="_blank"
-              rel="noopener noreferrer">Thomas Vanderstraeten's take</a
+              rel="noopener noreferrer">Thomas Vanderstraeten' s take</a
             >
           </p>
           <section id="table-of-contents">
@@ -1308,82 +2573,28 @@ rl.question('Press Enter to exit \n', () => {
 // https://astro.build/db/seed
 export default async function seed() {
   await db.insert(Post).values({
-    id: 1,
     slug: "multi-tenant-saas-architecture",
     createdAt: new Date(),
   });
 
-  await db.insert(PostContent).values({
-    id: 1,
-    postId: 1,
-    lang: "en",
-    title: "Multi-tenant SaaS Architecture with NestJS, TypeORM and PostgreSQL",
-    description:
-      "A deep dive into building a scalable multi-tenant application with NestJS, TypeORM and PostgreSQL for a database-per-tenant strategy.",
-    content: postcontentstr,
-  });
-
-  await db.insert(Comment).values([
-    ...Array.from({ length: 5 }).map((_v, i) =>
-      i === 4
-        ? {
-            id: 20,
-            authorsIp: "192.1.1.1",
-            author: "A COMMENTER",
-            body: "A COMMENT WITH EXACTLY TWO REPLIES",
-            createdAt: new Date(),
-            postId: 1,
-          }
-        : {
-            id: i++,
-            authorsIp: "192.1.1." + i,
-            author: "Brian" + i,
-            body: "some comment" + i++,
-            createdAt: new Date(),
-            postId: 1,
-          }
-    ),
+  await db.insert(PostContent).values([
     {
-      id: 21,
-      authorsIp: "192.1.1.123",
-      author: "A REPLIER",
-      body: "A REPLY",
-      createdAt: new Date(),
       postId: 1,
+      lang: "en",
+      title:
+        "Multi-tenant SaaS Architecture with NestJS, TypeORM and PostgreSQL",
+      description:
+        "A deep dive into building scalable multi-tenant applications with a database-per-tenant strategy.",
+      content: enPostContent,
     },
     {
-      id: 22,
-      authorsIp: "192.1.1.456",
-      author: "A SECOND REPLIER",
-      body: "A SECOND REPLY",
-      createdAt: new Date(),
       postId: 1,
-    },
-    {
-      id: 23,
-      authorsIp: "192.1.1.789",
-      author: "A REPLIER TO SECOND REPLIER",
-      body: "A REPLY TO SECOND REPLY",
-      createdAt: new Date(),
-      postId: 1,
-    },
-  ]);
-
-  await db.insert(CommentReply).values([
-    {
-      id: 1,
-      originalCommentId: 20,
-      comment: 21,
-    },
-    {
-      id: 2,
-      originalCommentId: 20,
-      comment: 22,
-    },
-    {
-      id: 3,
-      originalCommentId: 22,
-      comment: 23,
+      lang: "es",
+      title:
+        "Arquitectura Saas para multiples tenants con NestJS, TypeORM and PostgreSQL",
+      description:
+        "Una exploración a fondo sobre cómo construir una aplicación multi-tenant escalable utilizando NestJS, TypeORM y PostgreSQL, empleando una estrategia de base de datos por tenant.",
+      content: esPostContent,
     },
   ]);
 }

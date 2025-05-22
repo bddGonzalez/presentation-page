@@ -3,6 +3,7 @@ import { getRelativeLocaleUrl } from "astro:i18n";
 import "../styles/Navigation.css";
 import CrossIcon from "./icons/CrossIcon.astro";
 import HamburgerMenuIcon from "./icons/HamburgerMenuIcon.astro";
+import Logo from "../logo.svg";
 
 type Link = {
   href: string;
@@ -22,7 +23,9 @@ const pathname = origin
 const links: Link[] = [
   {
     href: getRelativeLocaleUrl(Astro.currentLocale ?? "en"),
-    label: isEnglish ? "Main Page" : "Inicio",
+    Icon: Logo,
+    label: "",
+    extraProps: { width: 60, height: 50 },
   },
   {
     href: getRelativeLocaleUrl(Astro.currentLocale ?? "en", "resume"),
@@ -46,10 +49,13 @@ const links: Link[] = [
         style="text-decoration:underline; color:#1F3760;"
         href={getRelativeLocaleUrl("es", pathname)}
       >
-        Si
+        <p>Si</p>
       </a>
-      <button id="reject-language-change" style="text-decoration:underline;">
-        No
+      <button
+        id="reject-language-change"
+        style="text-decoration:underline;cursor:pointer;"
+      >
+        <p>No</p>
       </button>
     </div>
   )
@@ -68,7 +74,7 @@ const links: Link[] = [
         links
           .filter(({ href }) => {
             const parsedHref = href.replace("/es/", "/");
-            return pathname !== parsedHref;
+            return pathname !== parsedHref || parsedHref === "/"; // we always wanna show main page link, even in main page
           })
           .map(({ href, label, Icon, extraProps }) => (
             <li style="list-style: none !important;">

@@ -72,7 +72,7 @@ export default function CommentSection({ postId }: { postId: number }) {
   const parsedComments = parseReplies(comments, tempComments);
 
   return (
-    <section id="comments-section">
+    <section id="comment-section">
       <h2>Comments</h2>
       <CommentFormModal
         postId={postId}

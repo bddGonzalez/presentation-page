@@ -20,7 +20,7 @@
 .hero-subtitle {
     font-size: 1.2em;
     text-align: center;
-    color: #555;
+    color: var(--color);
 }
 
 .header {

@@ -2,6 +2,7 @@
 import { PostContent } from "astro:db";
 import { Post } from "astro:db";
 import { db } from "astro:db";
+import { getRelativeLocaleUrl } from "astro:i18n";
 const origin = Astro.request.headers.get("Referer");
 if (!origin) throw new Error("Something went wrong!");
 const isEnglish = !origin.includes("/es/");
@@ -22,14 +23,21 @@ const postContents = await db
     posts.map((post) => {
       const postContent = isEnglish
         ? postContents.find(({ lang }) => lang === "en")
-        : postContents.find(({ postId }) => post.id === postId);
+        : postContents.find(
+            ({ lang, postId }) => lang !== "en" && post.id === postId
+          );
 
       if (!postContent) throw new Error("Something went wrong");
 
       return (
         <article class="post-item">
           <h2>
-            <a href={"/posts/" + post.slug}>
+            <a
+              href={getRelativeLocaleUrl(
+                Astro.currentLocale ?? "en",
+                "/posts/" + post.slug
+              )}
+            >
               {postContent.title} - {post.createdAt.toLocaleDateString("es-ar")}
             </a>
           </h2>
